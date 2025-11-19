@@ -1,0 +1,134 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Initialize Next.js Project with Core Dependencies</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-18</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-1-initialize-nextjs-project-with-core-dependencies.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to initialize the Next.js project with TypeScript, Tailwind CSS, and shadcn/ui</iWant>
+    <soThat>the foundational codebase is ready for feature development</soThat>
+    <tasks>
+      - Initialize Next.js 15 project
+      - Initialize shadcn/ui component library
+      - Configure Publishing Ink theme
+      - Install development tools
+      - Create project structure directories
+      - Verify project structure
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Given the project repository exists, When I run `npx create-next-app@latest` with the specified options, Then the project is created with Next.js 15, TypeScript 5, Tailwind CSS 4, App Router, and src/ directory structure
+    2. And shadcn/ui is initialized with `npx shadcn@latest init`
+    3. And the Publishing Ink theme is configured in tailwind.config.ts (navy blue, amber accents, slate text)
+    4. And the project structure follows the Architecture spec (app/, components/, lib/, db/, etc.)
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Project Initialization</title>
+        <section>Project Initialization (lines 18-50)</section>
+        <snippet>Defines the exact create-next-app command with all required flags: --typescript --tailwind --eslint --app --src-dir --import-alias "@/*". This provides Next.js 15, TypeScript 5, Tailwind CSS 4, App Router, src/ directory, and clean import aliases.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Technology Stack</title>
+        <section>Decision Summary (lines 52-79)</section>
+        <snippet>Documents all foundation technology decisions including Next.js 15.x, TypeScript 5.x, Tailwind CSS 4.x, and shadcn/ui CLI v2.x. Provides rationale for each choice: App Router for React Server Components, TypeScript for type safety, Tailwind required for shadcn/ui, shadcn for WCAG AA accessible components with code ownership.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Project Structure</title>
+        <section>Project Structure (lines 80-170)</section>
+        <snippet>Complete directory structure showing: src/app/ for Next.js App Router with (auth) and (dashboard) route groups, src/components/ with ui/ subdirectory for shadcn/ui, src/lib/ for utilities, db/ for database, hono/ for API routes, tests/ for testing, and configuration files.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Publishing Ink Theme</title>
+        <section>shadcn/ui + Tailwind CSS 4 (lines 263-272)</section>
+        <snippet>Publishing Ink theme color palette: brand.deep '#1e3a8a' (Navy blue - primary), brand.warm '#d97706' (Amber - accents), brand.neutral '#64748b' (Slate - text), brand.success '#059669' (Emerald - positive), brand.error '#dc2626' (Red - alerts). These colors must be added to tailwind.config.ts.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Tech Spec - Story 1.1 Objectives</title>
+        <section>In Scope - Story 1.1 (lines 20-24)</section>
+        <snippet>Story 1.1 scope: Create Next.js 15 project with TypeScript 5, Tailwind CSS 4, App Router. Initialize shadcn/ui component library with Publishing Ink theme. Establish project structure (app/, components/, lib/, db/, etc.). This is the first story in Epic 1 and provides the foundation for all subsequent stories.</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>PRD - User Experience Principles</title>
+        <section>Visual Personality (lines 304-313)</section>
+        <snippet>Salina ERP should convey reliability and competence appropriate for financial and operational management software. Clean, structured layouts with clear visual hierarchy. Professional color palette (avoid playful or consumer-oriented design). Desktop-first optimization (primary users work at desks).</snippet>
+      </doc>
+    </docs>
+    <code></code>
+    <dependencies>
+      <node>
+        <next>^15.0.0</next>
+        <react>^19.0.0</react>
+        <react-dom>^19.0.0</react-dom>
+        <typescript>^5.0.0</typescript>
+        <tailwindcss>^4.0.0</tailwindcss>
+        <postcss>^8.4.0</postcss>
+        <autoprefixer>^10.4.0</autoprefixer>
+        <@radix-ui/react-slot>^1.0.0</@radix-ui/react-slot>
+        <class-variance-authority>^0.7.0</class-variance-authority>
+        <clsx>^2.0.0</clsx>
+        <tailwind-merge>^2.0.0</tailwind-merge>
+        <tailwindcss-animate>^1.0.7</tailwindcss-animate>
+        <eslint>^8.0.0</eslint>
+        <eslint-config-next>^15.0.0</eslint-config-next>
+        <prettier>^3.0.0</prettier>
+        <prettier-plugin-tailwindcss>^0.5.0</prettier-plugin-tailwindcss>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - MUST use exact create-next-app command specified in Architecture (lines 22-30): `npx create-next-app@latest salina-erp --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"`
+    - MUST follow Publishing Ink theme colors exactly: deep '#1e3a8a', warm '#d97706', neutral '#64748b', success '#059669', error '#dc2626'
+    - MUST use pnpm as package manager (recommended by Architecture for monorepo compatibility)
+    - MUST create directories matching Architecture spec: src/app/, src/components/ui/, src/lib/, db/, hono/, tests/
+    - MUST configure shadcn/ui with: TypeScript, tailwind.config.ts, src/ directory, @/* import alias, React Server Components enabled
+    - NO database connection or API routes in this story (Story 1.2 and beyond)
+    - NO authentication setup in this story (Story 1.4)
+  </constraints>
+  <interfaces>
+    <interface>
+      <name>shadcn/ui CLI</name>
+      <kind>CLI tool</kind>
+      <signature>npx shadcn@latest init</signature>
+      <path>External CLI tool</path>
+    </interface>
+    <interface>
+      <name>create-next-app</name>
+      <kind>CLI tool</kind>
+      <signature>npx create-next-app@latest [project-name] [options]</signature>
+      <path>External CLI tool</path>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>From Tech Spec Epic 1 (Test Strategy Summary): Sprint 0 MUST complete before Epic 1 implementation. Unit tests: Minimal for Epic 1 (project structure validation only). Integration tests: Will be added in subsequent stories (1.2+). E2E tests: Playwright setup in Sprint 0. For Story 1.1: No test files created in this story (foundation only). Verify project builds and runs successfully with `pnpm dev` and `pnpm build`.</standards>
+    <locations>
+      tests/unit/ - Unit tests (Vitest)
+      tests/integration/ - Integration tests (Vitest with test DB)
+      tests/e2e/ - End-to-end tests (Playwright)
+    </locations>
+    <ideas>
+      - [AC-1] Unit test: Verify project structure matches Architecture spec (check for src/app/, src/components/ui/, src/lib/, db/, hono/, tests/ directories)
+      - [AC-1] Unit test: Verify package.json contains required dependencies (Next.js 15, TypeScript 5, Tailwind CSS 4)
+      - [AC-2] Unit test: Verify components.json exists and contains correct shadcn/ui configuration
+      - [AC-3] Unit test: Verify tailwind.config.ts contains Publishing Ink theme colors
+      - [AC-4] Integration test: Verify project builds successfully (`pnpm build` exits with code 0)
+      - [AC-4] Integration test: Verify dev server starts successfully (`pnpm dev` runs without errors)
+    </ideas>
+  </tests>
+</story-context>
