@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "2mb",
     },
+    // Mark pino and related packages as external to avoid bundling test files
+    serverComponentsExternalPackages: ['pino', 'pino-pretty', 'pino-abstract-transport'],
   },
 };
 
