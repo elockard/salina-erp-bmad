@@ -1,0 +1,238 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>4</storyId>
+    <title>Integrate Clerk Authentication</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-19</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-4-integrate-clerk-authentication.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to integrate Clerk for authentication and organization management</iWant>
+    <soThat>users can sign up, log in, and belong to tenant organizations</soThat>
+    <tasks>
+      - Task 1: Install Clerk and configure environment variables
+      - Task 2: Create Clerk middleware and tenant context integration
+      - Task 3: Create authentication routes (sign-in, sign-up)
+      - Task 4: Configure Clerk Organizations for multi-tenancy
+      - Task 5: Define 8 custom roles in Clerk
+      - Task 6: Set up root layout with ClerkProvider
+      - Task 7: Create Server Action auth helpers
+      - Task 8: Set up Clerk webhook endpoint for user/org sync
+      - Task 9: Create integration tests for Clerk authentication
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Clerk middleware is set up in src/middleware.ts
+    2. Auth routes are created: app/(auth)/sign-in/[[...sign-in]]/page.tsx and sign-up
+    3. Clerk Organizations are mapped 1:1 to Salina tenants
+    4. The 8 custom roles are defined in Clerk metadata (publisher_owner, managing_editor, production_staff, sales_marketing, warehouse_operations, accounting, author, illustrator)
+    5. Users can sign up, create an organization, and be assigned a role
+    6. auth() helper provides userId and orgId in Server Actions
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Clerk Configuration</title>
+        <section>Clerk (Authentication &amp; Organizations)</section>
+        <snippet>Clerk Organization ID = Salina Tenant ID (1:1). Organization membership = user-tenant association. Custom roles stored in Clerk metadata: user.publicMetadata.roles. Middleware pattern: Extract orgId → setTenantContext() for RLS. (Architecture:277-298)</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - 8 Custom Roles</title>
+        <section>8 Custom Roles</section>
+        <snippet>publisher_owner (full access), managing_editor (titles, contributors, production), production_staff (titles, files, production tasks), sales_marketing (customers, orders, reports - no costs), warehouse_operations (inventory, fulfillment, shipping), accounting (financials, exports, reports), author (view own titles, royalties), illustrator (view own titles, royalties). (Architecture:283-291)</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Middleware Pattern</title>
+        <section>Middleware Pattern</section>
+        <snippet>clerkMiddleware extracts userId and orgId from auth(), calls setTenantContext(orgId) to set app.current_tenant_id session variable for RLS enforcement. (Architecture:293-298)</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Multi-Tenant Security</title>
+        <section>Multi-Tenant Security</section>
+        <snippet>Database Level: RLS policies on all tenant-scoped tables, session variable app.current_tenant_id set by withTenantContext(). Application Level: Clerk Organizations map 1:1 with tenants, all Server Actions verify auth().orgId matches requested tenant. (Architecture:1709-1727)</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>PRD - User Management &amp; Access Control</title>
+        <section>FR10-FR17</section>
+        <snippet>Publisher/Owner can invite users via email with role assignment (FR10). Invited users receive email with activation link (FR11). System enforces role-based permissions for 8 user types (FR13). System enforces field-level permissions based on role (FR17).</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics - Story 1.4</title>
+        <section>Story 1.4: Integrate Clerk Authentication</section>
+        <snippet>Prerequisite: Story 1.3 (RLS infrastructure). Install @clerk/nextjs, configure middleware, create auth routes, map Organizations 1:1 to tenants, define 8 custom roles, enable auth() helper in Server Actions. Covers FR10-FR12 (partial - user authentication and invitation structure).</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/1-2-set-up-postgresql-database-with-drizzle-orm.md</path>
+        <title>Story 1.2 - Database Setup Learnings</title>
+        <section>Learnings from Previous Story</section>
+        <snippet>Database foundation complete with Drizzle ORM, PostgreSQL client at db/index.ts with connection pooling (100 max connections), tenantFields mixin at db/schema/base.ts, Integration tests pattern established at tests/integration/database.test.ts.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>db/tenant-context.ts</path>
+        <kind>service</kind>
+        <symbol>withTenantContext</symbol>
+        <lines>72-119</lines>
+        <reason>Critical function for RLS enforcement. Clerk middleware must call this with orgId to set app.current_tenant_id session variable for tenant isolation.</reason>
+      </artifact>
+      <artifact>
+        <path>db/tenant-context.ts</path>
+        <kind>service</kind>
+        <symbol>getTenantContext</symbol>
+        <lines>138-151</lines>
+        <reason>Utility function to retrieve current tenant ID from session variable. Useful for testing Clerk middleware integration.</reason>
+      </artifact>
+      <artifact>
+        <path>db/tenant-context.ts</path>
+        <kind>service</kind>
+        <symbol>clearTenantContext</symbol>
+        <lines>170-176</lines>
+        <reason>Test cleanup utility to ensure no tenant context leakage between test cases.</reason>
+      </artifact>
+      <artifact>
+        <path>tests/integration/database.test.ts</path>
+        <kind>test</kind>
+        <symbol>database integration tests</symbol>
+        <lines>all</lines>
+        <reason>Established pattern for integration tests (19 tests, 100% passing). Follow this structure for Clerk auth integration tests.</reason>
+      </artifact>
+      <artifact>
+        <path>tests/integration/rls.test.ts</path>
+        <kind>test</kind>
+        <symbol>RLS integration tests</symbol>
+        <lines>all</lines>
+        <reason>RLS enforcement tests showing how withTenantContext() works with tenant isolation. Reference for testing Clerk middleware + RLS integration.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="next" version="16.0.3" />
+        <package name="react" version="19.2.0" />
+        <package name="react-dom" version="19.2.0" />
+        <package name="drizzle-orm" version="0.44.7" />
+        <package name="postgres" version="3.4.7" />
+        <package name="typescript" version="5.9.3" />
+        <package name="vitest" version="4.0.10" />
+        <package name="tailwindcss" version="4.1.17" />
+        <package name="class-variance-authority" version="0.7.1" />
+        <package name="clsx" version="2.1.1" />
+        <package name="lucide-react" version="0.554.0" />
+      </node>
+      <toAdd>
+        <package name="@clerk/nextjs" version="~6.35.1" reason="Clerk authentication and organization management (Architecture requirement)" />
+      </toAdd>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - CRITICAL: Middleware MUST call withTenantContext(orgId) from db/tenant-context.ts to connect Clerk auth to RLS
+    - Clerk Organization ID = Salina Tenant ID (1:1 mapping, no exceptions)
+    - Roles MUST be stored in user.publicMetadata.roles (not privateMetadata)
+    - Use auth() from @clerk/nextjs/server in Server Actions (not @clerk/nextjs for client)
+    - Middleware.ts file location: src/middleware.ts (Next.js 15 App Router pattern)
+    - Protect dashboard routes but allow public access to auth pages and webhooks
+    - Never trust client-provided tenant ID (always use orgId from Clerk session)
+    - All Server Actions must validate both userId and orgId exist before proceeding
+    - Environment variables: CLERK_SECRET_KEY (server-only), NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY (client-safe)
+    - Webhook signature verification required using CLERK_WEBHOOK_SECRET (prevent spoofing)
+    - Follow Next.js 15 App Router conventions (app directory, Server Components by default)
+    - Use AppError classes for structured errors (throw AppError('Unauthorized', 'UNAUTHORIZED', 401))
+    - Integration tests required (following Story 1.2 precedent with Vitest)
+    - Publishing Ink theme colors for auth pages (navy blue #1e3a8a, amber #d97706, slate #64748b)
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>auth()</name>
+      <kind>function</kind>
+      <signature>import { auth } from '@clerk/nextjs/server'; const { userId, orgId } = auth();</signature>
+      <path>@clerk/nextjs/server</path>
+      <description>Server-side auth helper that extracts userId and orgId from Clerk session. Returns { userId: string | null, orgId: string | null }. Use in Server Actions and API routes.</description>
+    </interface>
+    <interface>
+      <name>withTenantContext()</name>
+      <kind>function</kind>
+      <signature>async function withTenantContext&lt;T&gt;(tenantId: string, callback: (tx: typeof db) =&gt; Promise&lt;T&gt;): Promise&lt;T&gt;</signature>
+      <path>db/tenant-context.ts</path>
+      <description>Sets app.current_tenant_id session variable for RLS enforcement. Middleware should call this with Clerk orgId to enable tenant isolation.</description>
+    </interface>
+    <interface>
+      <name>ClerkProvider</name>
+      <kind>component</kind>
+      <signature>&lt;ClerkProvider appearance={{ ... }}&gt;{children}&lt;/ClerkProvider&gt;</signature>
+      <path>@clerk/nextjs</path>
+      <description>Root provider component that wraps entire Next.js app in app/layout.tsx. Enables Clerk auth throughout application.</description>
+    </interface>
+    <interface>
+      <name>SignIn, SignUp</name>
+      <kind>component</kind>
+      <signature>&lt;SignIn routing="path" path="/sign-in" /&gt;</signature>
+      <path>@clerk/nextjs</path>
+      <description>Pre-built auth UI components. Configure with routing, redirects, and appearance options.</description>
+    </interface>
+    <interface>
+      <name>clerkMiddleware()</name>
+      <kind>function</kind>
+      <signature>export default clerkMiddleware((auth, req) =&gt; { const { userId, orgId } = auth(); ... })</signature>
+      <path>@clerk/nextjs/server</path>
+      <description>Middleware wrapper that provides auth state. Extract userId and orgId, then call withTenantContext(orgId).</description>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Integration tests required using Vitest 4.0.10. Follow pattern from tests/integration/database.test.ts (19 tests, 100% passing). Test database connection, RLS enforcement, and Clerk middleware integration. Use separate test database (never production). Test files: tests/integration/clerk-auth.test.ts for auth flow tests. Follow established patterns: clear test descriptions, comprehensive coverage of acceptance criteria, proper setup/teardown with clearTenantContext().
+    </standards>
+    <locations>
+      - tests/integration/ (integration tests)
+      - tests/unit/ (unit tests for utilities)
+    </locations>
+    <ideas>
+      <idea ac="AC1">
+        <description>Test Clerk middleware extracts userId and orgId correctly</description>
+        <approach>Mock Clerk auth() to return test userId/orgId, verify middleware sets tenant context via withTenantContext()</approach>
+      </idea>
+      <idea ac="AC2">
+        <description>Test auth routes render SignIn/SignUp components</description>
+        <approach>Integration test that verifies app/(auth)/sign-in and sign-up pages render without errors</approach>
+      </idea>
+      <idea ac="AC3">
+        <description>Test Clerk Organization ID maps to tenantId</description>
+        <approach>Verify middleware correctly extracts orgId and passes to withTenantContext() as tenantId</approach>
+      </idea>
+      <idea ac="AC4">
+        <description>Test role metadata is accessible</description>
+        <approach>Mock Clerk user with roles in publicMetadata, verify getUserRoles() extracts array correctly</approach>
+      </idea>
+      <idea ac="AC5">
+        <description>Test organization creation flow</description>
+        <approach>Integration test that simulates user signup → org creation → orgId assignment</approach>
+      </idea>
+      <idea ac="AC6">
+        <description>Test auth() helper in Server Actions</description>
+        <approach>Create example Server Action, verify auth() returns userId and orgId, test unauthorized case throws AppError</approach>
+      </idea>
+      <idea ac="all">
+        <description>Test protected routes redirect when unauthenticated</description>
+        <approach>Verify middleware redirects to /sign-in for dashboard routes when userId is null</approach>
+      </idea>
+      <idea ac="all">
+        <description>Test webhook signature verification</description>
+        <approach>Test webhook endpoint rejects requests with invalid CLERK_WEBHOOK_SECRET signature</approach>
+      </idea>
+    </ideas>
+  </tests>
+</story-context>

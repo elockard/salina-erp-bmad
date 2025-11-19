@@ -12,6 +12,7 @@
 
 export * from './base'
 export * from './tenants' // Story 1.3: RLS Infrastructure
+export * from './tenant-features' // Story 1.5: Tenant Provisioning
 
 // Future schema exports will be added here as stories progress:
 // export * from './users' (Story 1.4)

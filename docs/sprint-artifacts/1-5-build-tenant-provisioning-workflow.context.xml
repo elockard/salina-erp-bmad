@@ -1,0 +1,325 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.5</storyId>
+    <title>Build Tenant Provisioning Workflow</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-19</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-5-build-tenant-provisioning-workflow.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>prospective publisher</asA>
+    <iWant>to sign up for Salina ERP and have my tenant automatically provisioned</iWant>
+    <soThat>I can start using the platform immediately with default configuration</soThat>
+    <tasks>
+      - Task 1: Implement organization.created webhook handler
+      - Task 2: Create tenant-features schema for subscription tiers
+      - Task 3: Create tenant settings page structure
+      - Task 4: Build branding configuration form
+      - Task 5: Build locale configuration form
+      - Task 6: Build usage metrics display
+      - Task 7: Implement data export functionality
+      - Task 8: Create integration tests for tenant provisioning
+      - Task 9: Update Clerk webhook configuration guide
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. organization.created webhook creates tenant record with Clerk orgId
+    2. Tenant record includes default branding settings (Publishing Ink theme)
+    3. Tenant record includes default locale settings (timezone, currency, measurement units)
+    4. Feature flags initialized based on subscription tier (Starter by default)
+    5. Settings page at /settings/company allows Publisher/Owner to configure branding
+    6. Settings page allows configuration of timezone, locale, currency, measurement units
+    7. Settings page displays usage metrics (title count, user count, order count)
+    8. Settings page provides "Export Data" button for JSON/CSV download
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <artifact>
+        <path>docs/epics.md</path>
+        <title>Epic 1: Foundation & Multi-Tenant Setup</title>
+        <section>Story 1.5: Build Tenant Provisioning Workflow</section>
+        <snippet>Epic covers FR1-FR9 (Tenant & Subscription Management). Story 1.5 implements automatic tenant provisioning via Clerk webhooks with settings page for branding, locale, usage metrics, and data export.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/architecture.md</path>
+        <title>Architecture: Multi-Tenancy and Clerk Integration</title>
+        <section>Tenant Configuration, Clerk Organization Mapping</section>
+        <snippet>Clerk Organization ID maps 1:1 to Salina Tenant ID. Webhook integration pattern uses Svix signature verification. Settings stored in tenants.settings JSONB field.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/prd.md</path>
+        <title>Product Requirements: FR1-FR9</title>
+        <section>Tenant & Subscription Management</section>
+        <snippet>FR1 (self-service registration), FR2 (tenant provisioning), FR3 (branding), FR4 (timezone/locale/currency), FR5 (tiered plans), FR7 (usage metrics), FR8 (data export).</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/clerk-configuration-guide.md</path>
+        <title>Clerk Configuration Guide</title>
+        <section>Webhook Setup Instructions</section>
+        <snippet>Guide for configuring Clerk Dashboard, webhook endpoints, and local testing with ngrok. Will be updated with organization.created event handling in this story.</snippet>
+      </artifact>
+      <artifact>
+        <path>docs/sprint-artifacts/1-4-integrate-clerk-authentication.md</path>
+        <title>Story 1.4: Integrate Clerk Authentication</title>
+        <section>Learnings and Webhook Infrastructure</section>
+        <snippet>Established webhook endpoint with Svix verification at src/app/api/webhooks/clerk/route.ts. Created stubs for organization.created handler. Permission system with canManageTenant() ready for settings page.</snippet>
+      </artifact>
+    </docs>
+
+    <code>
+      <artifact>
+        <path>src/app/api/webhooks/clerk/route.ts</path>
+        <kind>webhook handler</kind>
+        <symbol>handleOrganizationCreated</symbol>
+        <lines>182-209</lines>
+        <reason>Stub function for organization.created webhook. Task 1 will implement full tenant provisioning logic here.</reason>
+      </artifact>
+      <artifact>
+        <path>db/schema/tenants.ts</path>
+        <kind>database schema</kind>
+        <symbol>tenants table</symbol>
+        <lines>72-193</lines>
+        <reason>Existing tenants table from Story 1.3. Contains settings field (JSONB) for branding/locale configuration. Task 1 will insert tenant records here.</reason>
+      </artifact>
+      <artifact>
+        <path>db/schema/base.ts</path>
+        <kind>database schema</kind>
+        <symbol>tenantFields mixin</symbol>
+        <lines>1-50</lines>
+        <reason>RLS mixin pattern required for tenant-features table in Task 2. Provides tenantId, createdAt, updatedAt fields.</reason>
+      </artifact>
+      <artifact>
+        <path>db/tenant-context.ts</path>
+        <kind>database utility</kind>
+        <symbol>withTenantContext</symbol>
+        <lines>1-100</lines>
+        <reason>RLS enforcement wrapper. All database queries in webhook handler and settings mutations must use this.</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/permissions.ts</path>
+        <kind>utility</kind>
+        <symbol>canManageTenant, getUserRoles</symbol>
+        <lines>1-300</lines>
+        <reason>Permission checks from Story 1.4. Settings page (Task 3) requires Publisher/Owner role check with canManageTenant().</reason>
+      </artifact>
+      <artifact>
+        <path>src/actions/example.ts</path>
+        <kind>server action</kind>
+        <symbol>exampleAction</symbol>
+        <lines>1-150</lines>
+        <reason>Pattern for Server Actions from Story 1.4. Tasks 4-7 will follow this pattern: auth() extraction, withTenantContext() integration, discriminated union returns.</reason>
+      </artifact>
+      <artifact>
+        <path>tests/integration/rls.test.ts</path>
+        <kind>integration test</kind>
+        <symbol>RLS test patterns</symbol>
+        <lines>1-200</lines>
+        <reason>Integration test pattern from Story 1.3. Task 8 will follow this structure for tenant provisioning and RLS enforcement tests.</reason>
+      </artifact>
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="@clerk/nextjs" version="6.35.2">Clerk authentication and webhook integration</package>
+        <package name="svix" version="1.81.0">Webhook signature verification for Clerk webhooks</package>
+        <package name="drizzle-orm" version="0.44.7">Database ORM for tenant and feature flag queries</package>
+        <package name="postgres" version="3.4.7">PostgreSQL client for database connections</package>
+        <package name="next" version="16.0.3">Next.js App Router for Server Components and Server Actions</package>
+        <package name="react" version="19.2.0">React for Client Components (forms)</package>
+        <package name="lucide-react" version="0.554.0">Icons for settings UI</package>
+        <package name="class-variance-authority" version="0.7.1">Tailwind utility for component variants</package>
+        <package name="clsx" version="2.1.1">Conditional class names for UI components</package>
+      </node>
+      <devDependencies>
+        <package name="vitest" version="4.0.10">Testing framework for integration tests (Task 8)</package>
+        <package name="drizzle-kit" version="0.31.7">Database migration generation for tenant_features table</package>
+        <package name="typescript" version="5.9.3">TypeScript for type-safe development</package>
+      </devDependencies>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    1. **Webhook Idempotency:** handleOrganizationCreated MUST check if tenant with clerkOrgId already exists before creating. Prevents duplicate tenants if webhook fires twice.
+    2. **RLS Enforcement:** All database queries MUST use withTenantContext(). Settings mutations can only modify tenant's own data.
+    3. **Permission Checks:** Settings page requires Publisher/Owner role. Use canManageTenant() check from lib/permissions.ts.
+    4. **Settings JSON Structure:** Must maintain exact structure documented in story Dev Notes (branding, locale, onboarding keys).
+    5. **Feature Flag Schema:** tenant_features table MUST include RLS policy and unique constraint on (tenantId, featureKey).
+    6. **Subscription Tiers:** Starter tier limits: 50 titles, 5 users, 100 orders/month. Professional: 500/25/5000. Enterprise: unlimited.
+    7. **Server Action Pattern:** Follow Story 1.4 example.ts pattern: auth() extraction → validation → withTenantContext() → discriminated union return.
+    8. **Form Validation:** Use Zod schemas for all form inputs. Create validators/tenant.ts with brandingSchema and localeSchema.
+    9. **Testing Requirements:** Integration tests MUST verify RLS enforcement, webhook idempotency, feature flag initialization, and data export completeness.
+    10. **Architecture Compliance:** Follow Next.js 16 App Router conventions. Server Components for data fetching, Client Components for interactivity, Server Actions for mutations.
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>Clerk organization.created Webhook Payload</name>
+      <kind>Webhook Event</kind>
+      <signature>
+        {
+          type: 'organization.created',
+          data: {
+            id: string,              // Clerk Organization ID (use as clerkOrgId)
+            name: string,            // Organization display name
+            slug: string,            // URL-safe slug
+            created_by: string,      // User ID who created org
+            created_at: number,      // Unix timestamp
+            public_metadata: object, // Custom metadata
+            private_metadata: object // Private metadata
+          }
+        }
+      </signature>
+      <path>src/app/api/webhooks/clerk/route.ts</path>
+    </interface>
+    <interface>
+      <name>Tenant Settings JSON Schema</name>
+      <kind>Database Schema (JSONB)</kind>
+      <signature>
+        {
+          branding: {
+            logoUrl?: string,
+            primaryColor: string,    // Hex color (default: #1e3a8a)
+            secondaryColor: string   // Hex color (default: #d97706)
+          },
+          locale: {
+            timezone: string,        // IANA timezone (default: America/New_York)
+            currency: string,        // ISO 4217 (default: USD)
+            measurementSystem: 'imperial' | 'metric', // default: imperial
+            language: string         // ISO 639-1 (default: en-US)
+          },
+          onboarding: {
+            completedSteps: string[],
+            currentStep: string
+          }
+        }
+      </signature>
+      <path>db/schema/tenants.ts (settings field)</path>
+    </interface>
+    <interface>
+      <name>updateTenantBranding Server Action</name>
+      <kind>Server Action</kind>
+      <signature>
+        async function updateTenantBranding(formData: FormData): Promise&lt;
+          | { success: true }
+          | { success: false; error: string; message: string }
+        &gt;
+      </signature>
+      <path>src/actions/tenants.ts (to be created in Task 4)</path>
+    </interface>
+    <interface>
+      <name>updateTenantLocale Server Action</name>
+      <kind>Server Action</kind>
+      <signature>
+        async function updateTenantLocale(formData: FormData): Promise&lt;
+          | { success: true }
+          | { success: false; error: string; message: string }
+        &gt;
+      </signature>
+      <path>src/actions/tenants.ts (to be created in Task 5)</path>
+    </interface>
+    <interface>
+      <name>exportTenantData Server Action</name>
+      <kind>Server Action</kind>
+      <signature>
+        async function exportTenantData(format: 'json' | 'csv'): Promise&lt;
+          | { success: true; data: string | Blob }
+          | { success: false; error: string; message: string }
+        &gt;
+      </signature>
+      <path>src/actions/tenants.ts (to be created in Task 7)</path>
+    </interface>
+    <interface>
+      <name>initializeFeatureFlags Helper</name>
+      <kind>Helper Function</kind>
+      <signature>
+        async function initializeFeatureFlags(
+          tenantId: string,
+          tier: 'starter' | 'professional' | 'enterprise'
+        ): Promise&lt;void&gt;
+      </signature>
+      <path>src/actions/tenants.ts (to be created in Task 2)</path>
+    </interface>
+    <interface>
+      <name>withTenantContext RLS Wrapper</name>
+      <kind>Database Utility</kind>
+      <signature>
+        async function withTenantContext&lt;T&gt;(
+          tenantId: string,
+          callback: () => Promise&lt;T&gt;
+        ): Promise&lt;T&gt;
+      </signature>
+      <path>db/tenant-context.ts (existing from Story 1.3)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing follows Story 1.3 integration test patterns using Vitest. All tests use test database with RLS enforcement. Integration tests verify webhook handling, database mutations, RLS isolation, and permission checks. Unit tests validate form schemas and utility functions. Test files located in tests/integration/ directory. Use describe/it blocks with descriptive names. Mock Clerk auth() helper for Server Action tests.
+    </standards>
+
+    <locations>
+      tests/integration/
+      tests/unit/ (optional for validators)
+    </locations>
+
+    <ideas>
+      <test ac="1">
+        Test: organization.created webhook creates tenant record
+        - Verify tenant inserted with correct clerkOrgId, name, default settings
+        - Verify self-referential tenantId (tenant.id === tenant.tenantId)
+        - Verify default branding colors (#1e3a8a, #d97706)
+        - Verify default locale (America/New_York, USD, imperial, en-US)
+      </test>
+      <test ac="1">
+        Test: Webhook idempotency - duplicate organization.created ignored
+        - Create tenant via webhook
+        - Fire same webhook again
+        - Verify only one tenant exists (no duplicate)
+      </test>
+      <test ac="4">
+        Test: Feature flags initialized for Starter tier
+        - Verify tenant_features records created
+        - Verify titles_limit=50, users_limit=5, orders_per_month=100
+        - Verify RLS enforced (can't see other tenant's feature flags)
+      </test>
+      <test ac="5,6">
+        Test: updateTenantBranding saves branding settings
+        - Call Server Action with new colors
+        - Verify tenant.settings.branding updated
+        - Verify updatedAt timestamp changed
+        - Verify RLS prevents updating other tenant's branding
+      </test>
+      <test ac="5,6">
+        Test: updateTenantLocale saves locale settings
+        - Call Server Action with new timezone/currency
+        - Verify tenant.settings.locale updated
+        - Verify RLS prevents updating other tenant's locale
+      </test>
+      <test ac="7">
+        Test: Usage metrics calculate correctly
+        - Create test titles, users, orders for tenant
+        - Query UsageMetrics component
+        - Verify counts match created records
+        - Verify other tenant's data not counted
+      </test>
+      <test ac="8">
+        Test: Data export includes all tenant tables
+        - Create test data across multiple tables
+        - Call exportTenantData('json')
+        - Verify JSON includes all tenant-scoped tables
+        - Verify other tenant's data NOT included
+      </test>
+      <test ac="all">
+        Test: Settings page requires Publisher/Owner role
+        - Attempt to access /settings/company as different roles
+        - Verify only publisher_owner can access
+        - Verify canManageTenant() check enforced
+      </test>
+    </ideas>
+  </tests>
+</story-context>

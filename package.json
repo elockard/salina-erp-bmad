@@ -13,25 +13,33 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:integration": "vitest run tests/integration",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config=drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config=drizzle.config.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.22.0",
   "dependencies": {
+    "@clerk/nextjs": "6.35.2",
+    "@hookform/resolvers": "5.2.2",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "drizzle-orm": "0.44.7",
     "lucide-react": "0.554.0",
     "next": "16.0.3",
+    "pino": "10.1.0",
+    "pino-pretty": "13.1.2",
     "postgres": "3.4.7",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-hook-form": "7.66.1",
+    "sonner": "2.0.7",
+    "svix": "1.81.0",
     "tailwind-merge": "3.4.0",
-    "tailwindcss-animate": "1.0.7"
+    "tailwindcss-animate": "1.0.7",
+    "zod": "4.1.12"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.17",
