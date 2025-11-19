@@ -1,0 +1,235 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.2</storyId>
+    <title>Set Up PostgreSQL Database with Drizzle ORM</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-18</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-2-set-up-postgresql-database-with-drizzle-orm.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to configure PostgreSQL with Drizzle ORM and establish the database connection</iWant>
+    <soThat>we can define schemas and execute type-safe queries</soThat>
+    <tasks>
+      - Task 1: Install Drizzle ORM and PostgreSQL dependencies (AC: Install drizzle-orm, drizzle-kit, and pg driver)
+      - Task 2: Create database client configuration (AC: Database connection configured in db/index.ts)
+      - Task 3: Configure Drizzle Kit for migrations (AC: drizzle.config.ts created with migration settings)
+      - Task 4: Create base schema with tenant fields mixin (AC: Base schema created with tenantFields mixin)
+      - Task 5: Set up local development environment with Docker (AC: docker-compose.yml created for local PostgreSQL and Redis)
+      - Task 6: Verify database setup and test migration workflow (AC: Can run pnpm db:generate and db:migrate successfully)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    **Given** the Next.js project is initialized
+    **When** I install drizzle-orm, drizzle-kit, and pg driver
+    **Then** the database connection is configured in db/index.ts with connection pooling
+
+    **And** drizzle.config.ts is created with migration settings
+    **And** the base schema (db/schema/base.ts) is created with tenantFields mixin (tenant_id, created_at, updated_at)
+    **And** I can run `pnpm db:generate` and `pnpm db:migrate` successfully
+    **And** docker-compose.yml is created for local PostgreSQL and Redis
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Database Configuration (lines 229-238)</section>
+        <snippet>Drizzle ORM with PostgreSQL 16.x, connection pooling via pgBouncer pattern (100 max connections), type-safe SQL builder with native RLS support</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>tenantFields Mixin Pattern (lines 1504-1510)</section>
+        <snippet>Base schema defines tenantFields mixin (tenant_id, created_at, updated_at) that all tenant-scoped tables inherit for consistency and RLS implementation</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Docker Compose (lines 1932-1966)</section>
+        <snippet>Local development environment with PostgreSQL 16 and Redis 7 services, persistent volumes, health checks, and restart policies</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>AC-2: Database Configuration (lines 540-548)</section>
+        <snippet>Database connection in db/index.ts with connection pooling, drizzle.config.ts with migration settings, base schema with tenantFields mixin, db:generate and db:migrate scripts, docker-compose.yml for local development</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic 1 Technical Specification</title>
+        <section>Data Models - tenantFields Mixin (lines 125-135)</section>
+        <snippet>Reusable schema fields: tenantId (uuid, not null), createdAt (timestamp, default now), updatedAt (timestamp, default now)</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 1.2: Set Up PostgreSQL Database (lines 125-150)</section>
+        <snippet>Install drizzle-orm, drizzle-kit, pg driver; configure database connection; create base schema with tenantFields mixin; docker-compose for PostgreSQL + Redis</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>Technical Requirements - Database</section>
+        <snippet>PostgreSQL 16 required for Row-Level Security support, connection pooling for multi-tenant scalability, automated backups with 30-day retention</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/lib/utils.ts</path>
+        <kind>utility</kind>
+        <symbol>cn, other shadcn/ui utilities</symbol>
+        <lines>complete file</lines>
+        <reason>Existing utility file from Story 1.1, demonstrates TypeScript + shadcn/ui patterns to follow</reason>
+      </artifact>
+      <artifact>
+        <path>next.config.ts</path>
+        <kind>config</kind>
+        <symbol>Next.js configuration</symbol>
+        <lines>complete file</lines>
+        <reason>Existing Next.js config, shows TypeScript config pattern for drizzle.config.ts</reason>
+      </artifact>
+      <artifact>
+        <path>tailwind.config.ts</path>
+        <kind>config</kind>
+        <symbol>Tailwind CSS configuration with Publishing Ink theme</symbol>
+        <lines>complete file</lines>
+        <reason>Existing TypeScript config file, demonstrates configuration pattern; Publishing Ink theme already defined</reason>
+      </artifact>
+      <artifact>
+        <path>package.json</path>
+        <kind>config</kind>
+        <symbol>Project dependencies and scripts</symbol>
+        <lines>complete file</lines>
+        <reason>Add Drizzle dependencies here (drizzle-orm, postgres, drizzle-kit) and db scripts (db:generate, db:migrate, db:studio)</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <production>
+          <package name="next" version="16.0.3">Next.js framework</package>
+          <package name="react" version="19.2.0">React library</package>
+          <package name="react-dom" version="19.2.0">React DOM</package>
+          <package name="class-variance-authority" version="0.7.1">shadcn/ui utility</package>
+          <package name="clsx" version="2.1.1">CSS utility</package>
+          <package name="tailwind-merge" version="3.4.0">Tailwind utility</package>
+          <package name="tailwindcss-animate" version="1.0.7">Animation utility</package>
+          <package name="lucide-react" version="0.554.0">Icon library</package>
+        </production>
+        <development>
+          <package name="@tailwindcss/postcss" version="4.1.17">Tailwind CSS 4 PostCSS plugin</package>
+          <package name="@types/node" version="24.10.1">Node.js types</package>
+          <package name="@types/react" version="19.2.6">React types</package>
+          <package name="@types/react-dom" version="19.2.3">React DOM types</package>
+          <package name="typescript" version="5.9.3">TypeScript compiler</package>
+          <package name="eslint" version="9.39.1">Code linting</package>
+          <package name="eslint-config-next" version="16.0.3">Next.js ESLint config</package>
+          <package name="prettier" version="3.6.2">Code formatting</package>
+          <package name="prettier-plugin-tailwindcss" version="0.7.1">Tailwind Prettier plugin</package>
+        </development>
+        <to_add>
+          <package name="drizzle-orm" version="^0.44.7" type="production">Type-safe SQL ORM - add with: pnpm add drizzle-orm postgres</package>
+          <package name="postgres" version="^3.4.0" type="production">PostgreSQL driver for Node.js - add with drizzle-orm</package>
+          <package name="drizzle-kit" version="^0.31.6" type="development">Drizzle migration toolkit - add with: pnpm add -D drizzle-kit</package>
+        </to_add>
+      </node>
+      <docker>
+        <service name="postgres" version="16">PostgreSQL database with persistent volume</service>
+        <service name="redis" version="7-alpine">Redis for future caching needs</service>
+      </docker>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>Database client must be at project root in db/index.ts, NOT in src/ directory</constraint>
+    <constraint>Connection pooling: Use pgBouncer pattern with max 100 connections (Architecture:236)</constraint>
+    <constraint>Environment variables: DATABASE_URL must be in .env.example with placeholder, never commit actual credentials</constraint>
+    <constraint>Structured logging: Use Pino for database connection events, never log sensitive data (connection strings, passwords)</constraint>
+    <constraint>tenantFields mixin: Must define exactly these fields: tenantId (uuid, not null), createdAt (timestamp, default now), updatedAt (timestamp, default now)</constraint>
+    <constraint>TypeScript strict mode: All new code must pass strict type checking (tsconfig.json from Story 1.1)</constraint>
+    <constraint>Code style: Follow existing Prettier and ESLint configuration from Story 1.1</constraint>
+    <constraint>Migrations directory: Must be db/migrations/ for Drizzle Kit output</constraint>
+    <constraint>Schema directory: Must be db/schema/ for all schema files</constraint>
+    <constraint>Import alias: Use @/db for database imports (configured in Story 1.1)</constraint>
+    <constraint>Development only logging: Query logging enabled only in development mode (process.env.NODE_ENV === 'development')</constraint>
+    <constraint>Docker health checks: Both PostgreSQL and Redis services must have health checks and restart policies</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>db (Database Client Export)</name>
+      <kind>module export</kind>
+      <signature>export const db: drizzle-orm PostgresJsDatabase instance</signature>
+      <path>db/index.ts</path>
+      <description>Main database client exported for use in Server Actions and other modules. Will be imported as: import { db } from '@/db'</description>
+    </interface>
+    <interface>
+      <name>tenantFields</name>
+      <kind>schema mixin</kind>
+      <signature>
+export const tenantFields = {
+  tenantId: uuid('tenant_id').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}
+      </signature>
+      <path>db/schema/base.ts</path>
+      <description>Reusable mixin for all tenant-scoped tables. Story 1.3 will use this for RLS implementation. All future tenant tables must spread this mixin: { id: uuid('id').primaryKey(), ...tenantFields, otherFields... }</description>
+    </interface>
+    <interface>
+      <name>Drizzle Kit Scripts</name>
+      <kind>npm scripts</kind>
+      <signature>
+{
+  "db:generate": "drizzle-kit generate",
+  "db:migrate": "drizzle-kit migrate",
+  "db:studio": "drizzle-kit studio"
+}
+      </signature>
+      <path>package.json</path>
+      <description>NPM scripts for database operations. db:generate creates migrations from schema changes, db:migrate applies migrations, db:studio launches Drizzle Studio GUI</description>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      - Integration tests required for database connection and migration verification (Epic 1 Tech Spec, lines 692-703)
+      - Use Vitest for unit and integration tests (Story 1.1 installed Vitest)
+      - Separate test database required (never use production database)
+      - Test data cleanup: Automated cleanup after test runs (truncate tables, delete test data)
+      - Minimal unit tests for this story (configuration-heavy code)
+      - Focus on integration tests: connection success, migration success, schema introspection
+    </standards>
+    <locations>
+      - tests/integration/ - Integration tests for database operations
+      - tests/integration/database.test.ts - Primary test file for this story
+    </locations>
+    <ideas>
+      <test id="AC-verify-connection">
+        <name>Verify database connection succeeds</name>
+        <description>Test that db client can connect to PostgreSQL using DATABASE_URL from environment</description>
+        <acceptance_criteria>Database connection configured in db/index.ts</acceptance_criteria>
+      </test>
+      <test id="AC-verify-migrations">
+        <name>Verify migrations run without errors</name>
+        <description>Test that pnpm db:generate and pnpm db:migrate execute successfully and create migrations table</description>
+        <acceptance_criteria>Can run pnpm db:generate and pnpm db:migrate successfully</acceptance_criteria>
+      </test>
+      <test id="AC-verify-schema">
+        <name>Verify schema introspection returns expected structure</name>
+        <description>Test that Drizzle can introspect the database and return expected schema structure after migration</description>
+        <acceptance_criteria>Base schema created with tenantFields mixin</acceptance_criteria>
+      </test>
+      <test id="AC-verify-docker">
+        <name>Verify Docker services start successfully</name>
+        <description>Test that docker-compose up starts PostgreSQL and Redis services with health checks passing</description>
+        <acceptance_criteria>docker-compose.yml created for local PostgreSQL and Redis</acceptance_criteria>
+      </test>
+    </ideas>
+  </tests>
+</story-context>

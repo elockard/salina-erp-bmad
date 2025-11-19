@@ -7,6 +7,7 @@ Publishing operations management platform built with Next.js 15, TypeScript, and
 - **Framework:** Next.js 15 (App Router, React Server Components)
 - **Language:** TypeScript 5
 - **Styling:** Tailwind CSS 4 + shadcn/ui
+- **Database:** PostgreSQL 16 + Drizzle ORM
 - **Package Manager:** pnpm
 
 ## Getting Started
@@ -15,34 +16,48 @@ Publishing operations management platform built with Next.js 15, TypeScript, and
 
 - Node.js 20+
 - pnpm (recommended) or npm
+- Docker (for local PostgreSQL and Redis)
 
 ### Installation
 
 ```bash
-# Install dependencies
+# 1. Install dependencies
 pnpm install
 
-# Run development server
+# 2. Start local database services (PostgreSQL + Redis)
+docker-compose up -d
+
+# 3. Copy environment variables
+cp .env.example .env.local
+# Edit .env.local with your database connection (default is fine for local dev)
+
+# 4. Run database migrations
+pnpm db:generate
+pnpm db:migrate
+
+# 5. Start development server
 pnpm dev
-
-# Build for production
-pnpm build
-
-# Start production server
-pnpm start
 ```
+
+The application will be available at [http://localhost:3000](http://localhost:3000).
 
 ### Development Commands
 
 ```bash
-# Run linting
-pnpm lint
+# Code Quality
+pnpm lint                 # Run ESLint
+pnpm format               # Format code with Prettier
+pnpm format:check         # Check formatting
 
-# Format code with Prettier
-pnpm format
+# Database Management
+pnpm db:generate          # Generate migration from schema changes
+pnpm db:migrate           # Apply migrations to database
+pnpm db:studio            # Launch Drizzle Studio (visual database UI)
 
-# Check formatting
-pnpm format:check
+# Docker Services
+docker-compose up -d      # Start PostgreSQL + Redis in background
+docker-compose down       # Stop services
+docker-compose logs -f    # View service logs
 ```
 
 ## Project Structure
@@ -54,13 +69,20 @@ salina-erp-bmad/
 │   ├── components/       # React components
 │   │   └── ui/          # shadcn/ui components
 │   └── lib/             # Utility functions
-├── db/                  # Database schemas and migrations (future)
-├── hono/                # API routes for webhooks (future)
-├── tests/               # Test files
+├── db/
+│   ├── index.ts          # Database client (Drizzle + PostgreSQL)
+│   ├── schema/           # Database table schemas
+│   │   ├── base.ts      # Reusable schema patterns (tenantFields)
+│   │   └── index.ts     # Schema exports
+│   └── migrations/       # Generated database migrations
+├── hono/                 # API routes for webhooks (future)
+├── tests/                # Test files
 │   ├── unit/
 │   ├── integration/
 │   └── e2e/
-└── docs/                # Project documentation
+├── docs/                 # Project documentation
+├── docker-compose.yml    # Local PostgreSQL + Redis services
+└── drizzle.config.ts     # Drizzle ORM configuration
 ```
 
 ## Publishing Ink Theme
