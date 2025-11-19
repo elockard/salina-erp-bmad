@@ -1,0 +1,166 @@
+# generated: 2025-11-18
+# project: salina-erp-bmad
+# project_key: salina-erp-bmad
+# tracking_system: file-system
+# story_location: docs/sprint-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic exists in epic file but not contexted
+#   - contexted: Next epic tech context created by *epic-tech-context (required)
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - drafted: Story file created in stories folder by *create-story
+#   - ready-for-dev: Draft approved and story context created by *story-ready
+#   - in-progress: Developer actively working on implementation by *dev-story
+#   - review: Implementation complete, ready for review by *code-review
+#   - done: Story completed by *story-done
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - completed: Retrospective has been done by *retrospective
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epics should be 'contexted' before stories can be 'drafted'
+# - SM typically drafts next story ONLY after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', dev reviews, then Dev moves to 'done'
+
+generated: 2025-11-18
+project: salina-erp-bmad
+project_key: salina-erp-bmad
+tracking_system: file-system
+story_location: docs/sprint-artifacts
+
+development_status:
+  # Epic 1: Foundation & Multi-Tenant Setup (6 stories)
+  epic-1: backlog
+  1-1-initialize-nextjs-project-with-core-dependencies: backlog
+  1-2-set-up-postgresql-database-with-drizzle-orm: backlog
+  1-3-implement-row-level-security-rls-infrastructure: backlog
+  1-4-integrate-clerk-authentication: backlog
+  1-5-build-tenant-provisioning-workflow: backlog
+  1-6-set-up-deployment-infrastructure: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: User & Access Management (4 stories)
+  epic-2: backlog
+  2-1-build-user-invitation-system: backlog
+  2-2-implement-role-based-permission-system: backlog
+  2-3-build-user-management-interface: backlog
+  2-4-implement-audit-trail-system: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: ISBN Block Management (5 stories)
+  epic-3: backlog
+  3-1-implement-isbn-modulo-10-algorithm: backlog
+  3-2-create-isbn-block-generation-system: backlog
+  3-3-build-isbn-reservation-system: backlog
+  3-4-build-isbn-block-visualizer-and-picker: backlog
+  3-5-implement-low-isbn-alert-system: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Title & Metadata Management (5 stories)
+  epic-4: backlog
+  4-1-create-title-database-schema-with-multi-format-support: backlog
+  4-2-build-title-creation-wizard-steps-1-3: backlog
+  4-3-build-title-creation-wizard-steps-4-7: backlog
+  4-4-build-title-list-and-detail-views: backlog
+  4-5-build-title-editing-interface: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Contributor Management (4 stories)
+  epic-5: backlog
+  5-1-create-contributor-database-schema: backlog
+  5-2-build-contributor-management-interface: backlog
+  5-3-add-contributors-to-title-wizard-and-title-edit: backlog
+  5-4-build-contributor-self-service-portal: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Customer Management (4 stories)
+  epic-6: backlog
+  6-1-create-customer-database-schema: backlog
+  6-2-build-customer-management-interface: backlog
+  6-3-build-customer-pricing-rules-system: backlog
+  6-4-add-customer-order-history-view: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: Inventory Management (5 stories)
+  epic-7: backlog
+  7-1-create-inventory-database-schema: backlog
+  7-2-build-print-run-receipt-workflow: backlog
+  7-3-build-inventory-adjustment-workflow: backlog
+  7-4-build-inventory-list-and-status-views: backlog
+  7-5-implement-low-stock-alert-system: backlog
+  epic-7-retrospective: optional
+
+  # Epic 8: Order Processing (7 stories)
+  epic-8: backlog
+  8-1-create-order-database-schema: backlog
+  8-2-build-manual-order-entry-workflow: backlog
+  8-3-integrate-shopify-order-import: backlog
+  8-4-build-pick-pack-ship-fulfillment-workflow: backlog
+  8-5-integrate-easypost-shipping: backlog
+  8-6-build-order-list-and-detail-views: backlog
+  8-7-build-returns-management-workflow: backlog
+  epic-8-retrospective: optional
+
+  # Epic 9: Integration Ecosystem (6 stories)
+  epic-9: backlog
+  9-1-build-shopify-integration-configuration: backlog
+  9-2-build-easypost-integration-configuration: backlog
+  9-3-build-quickbooks-export-configuration: backlog
+  9-4-implement-shopify-inventory-sync: backlog
+  9-5-implement-integration-health-monitoring: backlog
+  9-6-implement-webhook-security-and-rate-limiting: backlog
+  epic-9-retrospective: optional
+
+  # Epic 10: Dashboards & Reporting (7 stories)
+  epic-10: backlog
+  10-1-build-publisher-owner-dashboard: backlog
+  10-2-build-sales-reports: backlog
+  10-3-build-inventory-reports: backlog
+  10-4-build-customer-purchase-reports: backlog
+  10-5-build-guided-onboarding-wizard: backlog
+  10-6-build-csv-data-import-tools: backlog
+  10-7-implement-system-administration-features: backlog
+  epic-10-retrospective: optional
+
+  # Epic 11: Contracts & Royalties (Growth - Post-MVP) (6 stories)
+  epic-11: backlog
+  11-1-create-contract-and-royalty-database-schema: backlog
+  11-2-build-contract-management-interface: backlog
+  11-3-implement-royalty-calculation-engine: backlog
+  11-4-build-royalty-statement-generation: backlog
+  11-5-build-contributor-royalty-self-service: backlog
+  11-6-build-royalty-payment-export: backlog
+  epic-11-retrospective: optional
+
+  # Epic 12: Production & Scheduling (Growth - Post-MVP) (5 stories)
+  epic-12: backlog
+  12-1-create-production-database-schema: backlog
+  12-2-build-production-project-management-interface: backlog
+  12-3-build-gantt-chart-view: backlog
+  12-4-build-kanban-board-view: backlog
+  12-5-implement-production-alerts-and-dashboards: backlog
+  epic-12-retrospective: optional
+
+  # Epic 13: ONIX & Metadata Automation (Growth - Post-MVP) (4 stories)
+  epic-13: backlog
+  13-1-build-onix-3-0-export-engine: backlog
+  13-2-build-onix-export-interface: backlog
+  13-3-build-csv-metadata-export: backlog
+  13-4-implement-onix-validation-and-compliance-checking: backlog
+  epic-13-retrospective: optional
+
+  # Epic 14: Advanced Analytics (Growth - Post-MVP) (6 stories)
+  epic-14: backlog
+  14-1-build-title-p-l-report: backlog
+  14-2-build-contributor-earnings-report: backlog
+  14-3-build-inventory-aging-analysis: backlog
+  14-4-build-months-of-supply-calculator: backlog
+  14-5-build-cash-flow-projection-report: backlog
+  14-6-build-production-pipeline-health-metrics: backlog
+  epic-14-retrospective: optional

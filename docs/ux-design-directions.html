@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salina ERP - Design Direction Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ink-blue: #1e3a8a;
+            --warm-amber: #d97706;
+            --rich-green: #047857;
+            --bright-orange: #ea580c;
+            --deep-red: #b91c1c;
+            --warm-cream: #fefce8;
+            --warm-white: #ffffff;
+            --warm-border: #e7e5e4;
+            --warm-muted: #78716c;
+            --warm-black: #1c1917;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: var(--warm-black);
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            color: var(--ink-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: var(--warm-muted);
+            margin-bottom: 1rem;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--ink-blue);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(30, 58, 138, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--warm-cream);
+            color: var(--ink-blue);
+            border: 1px solid var(--warm-border);
+        }
+
+        .direction-counter {
+            font-size: 0.875rem;
+            color: var(--warm-muted);
+            padding: 0.625rem 1rem;
+            background: var(--warm-cream);
+            border-radius: 6px;
+        }
+
+        .mockup-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .direction-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .direction-card.active {
+            display: block;
+        }
+
+        .direction-header {
+            padding: 1.5rem;
+            background: var(--warm-cream);
+            border-bottom: 2px solid var(--warm-border);
+        }
+
+        .direction-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ink-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .direction-description {
+            color: var(--warm-muted);
+            margin-bottom: 1rem;
+        }
+
+        .direction-traits {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .trait-badge {
+            padding: 0.375rem 0.75rem;
+            background: white;
+            border: 1px solid var(--warm-border);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--ink-blue);
+        }
+
+        .mockup-frame {
+            border: 1px solid var(--warm-border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1.5rem;
+        }
+
+        /* Mockup styles - reusable components */
+        .mock-app {
+            min-height: 600px;
+            display: flex;
+            background: var(--warm-cream);
+        }
+
+        .mock-sidebar {
+            width: 256px;
+            background: var(--warm-white);
+            border-right: 1px solid var(--warm-border);
+            padding: 1.5rem 1rem;
+        }
+
+        .mock-sidebar-compact {
+            width: 64px;
+        }
+
+        .mock-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--ink-blue);
+            margin-bottom: 2rem;
+            padding: 0 0.5rem;
+        }
+
+        .mock-nav-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.25rem;
+            border-radius: 6px;
+            color: var(--warm-muted);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mock-nav-item:hover {
+            background: var(--warm-cream);
+        }
+
+        .mock-nav-item.active {
+            background: #dbeafe;
+            color: var(--ink-blue);
+            font-weight: 600;
+        }
+
+        .mock-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mock-topbar {
+            background: var(--warm-white);
+            border-bottom: 1px solid var(--warm-border);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mock-breadcrumb {
+            font-size: 0.875rem;
+            color: var(--warm-muted);
+        }
+
+        .mock-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .mock-page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .mock-page-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--warm-black);
+            margin-bottom: 0.5rem;
+        }
+
+        .mock-page-subtitle {
+            color: var(--warm-muted);
+            font-size: 0.875rem;
+        }
+
+        .mock-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mock-stat-card {
+            background: var(--warm-white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--warm-border);
+        }
+
+        .mock-stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--warm-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .mock-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--ink-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .mock-stat-change {
+            font-size: 0.75rem;
+            color: var(--rich-green);
+        }
+
+        .mock-card {
+            background: var(--warm-white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--warm-border);
+            margin-bottom: 1rem;
+        }
+
+        .mock-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .mock-card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--warm-black);
+        }
+
+        .mock-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .mock-table th {
+            text-align: left;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--warm-muted);
+            border-bottom: 1px solid var(--warm-border);
+        }
+
+        .mock-table td {
+            padding: 1rem 0.75rem;
+            font-size: 0.875rem;
+            color: var(--warm-black);
+            border-bottom: 1px solid var(--warm-border);
+        }
+
+        .mock-table tr:hover {
+            background: var(--warm-cream);
+        }
+
+        .mock-badge {
+            padding: 0.25rem 0.625rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .mock-badge-blue {
+            background: #dbeafe;
+            color: var(--ink-blue);
+        }
+
+        .mock-badge-amber {
+            background: #fef3c7;
+            color: #78350f;
+        }
+
+        .mock-badge-green {
+            background: #d1fae5;
+            color: #064e3b;
+        }
+
+        .mock-btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--ink-blue);
+            color: white;
+        }
+
+        .mock-btn-secondary {
+            background: var(--warm-cream);
+            color: var(--ink-blue);
+            border: 1px solid var(--warm-border);
+        }
+
+        .mock-search {
+            padding: 0.625rem 1rem;
+            border: 1px solid var(--warm-border);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            width: 300px;
+        }
+
+        /* Direction-specific styles */
+        .dense-layout .mock-content {
+            padding: 1rem;
+        }
+
+        .dense-layout .mock-stat-card {
+            padding: 1rem;
+        }
+
+        .dense-layout .mock-card {
+            padding: 1rem;
+        }
+
+        .spacious-layout .mock-content {
+            padding: 2.5rem;
+        }
+
+        .spacious-layout .mock-stat-card {
+            padding: 2rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .title-card {
+            background: var(--warm-white);
+            border: 1px solid var(--warm-border);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .title-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .title-card-title {
+            font-weight: 600;
+            color: var(--ink-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .title-card-meta {
+            font-size: 0.75rem;
+            color: var(--warm-muted);
+        }
+
+        .wizard-stepper {
+            display: flex;
+            margin-bottom: 2rem;
+            background: var(--warm-white);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .wizard-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            padding: 0.5rem;
+        }
+
+        .wizard-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -50%;
+            top: 1.5rem;
+            width: 100%;
+            height: 2px;
+            background: var(--warm-border);
+            z-index: 0;
+        }
+
+        .wizard-step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--warm-cream);
+            color: var(--warm-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .wizard-step.active .wizard-step-number {
+            background: var(--ink-blue);
+            color: white;
+        }
+
+        .wizard-step.complete .wizard-step-number {
+            background: var(--rich-green);
+            color: white;
+        }
+
+        .wizard-step-label {
+            font-size: 0.75rem;
+            color: var(--warm-muted);
+        }
+
+        .wizard-step.active .wizard-step-label {
+            color: var(--ink-blue);
+            font-weight: 600;
+        }
+
+        .form-section {
+            background: var(--warm-white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--warm-black);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.625rem;
+            border: 1px solid var(--warm-border);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .form-helper {
+            font-size: 0.75rem;
+            color: var(--warm-muted);
+            margin-top: 0.25rem;
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--warm-cream);
+            border-radius: 8px;
+        }
+
+        .thumbnail {
+            aspect-ratio: 16/10;
+            border: 2px solid var(--warm-border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            overflow: hidden;
+            position: relative;
+            background: white;
+        }
+
+        .thumbnail:hover {
+            border-color: var(--ink-blue);
+            transform: scale(1.05);
+        }
+
+        .thumbnail.active {
+            border-color: var(--ink-blue);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
+        }
+
+        .thumbnail-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            padding: 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--ink-blue);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Salina Bookshelf ERP - Design Direction Explorer</h1>
+        <p>Explore 6 different design approaches for your publishing ERP. Each shows a complete vision for layout, hierarchy, and interaction.</p>
+        <div class="nav-controls">
+            <button class="btn" onclick="prevDirection()">← Previous</button>
+            <button class="btn" onclick="nextDirection()">Next →</button>
+            <div class="direction-counter">
+                <span id="current-direction">1</span> of 6
+            </div>
+            <button class="btn-secondary btn" onclick="toggleThumbnails()">View All</button>
+        </div>
+    </div>
+
+    <div class="mockup-container">
+        <!-- Direction 1: Professional Dashboard - Sidebar Nav -->
+        <div class="direction-card active" data-direction="1">
+            <div class="direction-header">
+                <div class="direction-name">1. Professional Dashboard</div>
+                <div class="direction-description">Classic ERP layout with left sidebar navigation. Information-rich dashboard optimized for Publisher/Owner role. Balanced visual density.</div>
+                <div class="direction-traits">
+                    <span class="trait-badge">Sidebar Navigation</span>
+                    <span class="trait-badge">Data-Dense</span>
+                    <span class="trait-badge">Dashboard-First</span>
+                    <span class="trait-badge">Traditional ERP</span>
+                </div>
+            </div>
+            <div class="mockup-frame">
+                <div class="mock-app">
+                    <div class="mock-sidebar">
+                        <div class="mock-logo">Salina ERP</div>
+                        <div class="mock-nav-item active">📊 Dashboard</div>
+                        <div class="mock-nav-item">📚 Titles</div>
+                        <div class="mock-nav-item">👥 Customers</div>
+                        <div class="mock-nav-item">📦 Orders</div>
+                        <div class="mock-nav-item">📥 Inventory</div>
+                        <div class="mock-nav-item">🏭 Production</div>
+                        <div class="mock-nav-item">📈 Reports</div>
+                        <div class="mock-nav-item">⚙️ Settings</div>
+                    </div>
+                    <div class="mock-main">
+                        <div class="mock-topbar">
+                            <div class="mock-breadcrumb">Dashboard / Overview</div>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <input type="search" class="mock-search" placeholder="Search titles, orders...">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--ink-blue);"></div>
+                            </div>
+                        </div>
+                        <div class="mock-content">
+                            <div class="mock-page-header">
+                                <div class="mock-page-title">Welcome back, Publisher</div>
+                                <div class="mock-page-subtitle">Here's what's happening with your publishing operations</div>
+                            </div>
+
+                            <div class="mock-stats-grid">
+                                <div class="mock-stat-card">
+                                    <div class="mock-stat-label">Sales This Month</div>
+                                    <div class="mock-stat-value">$24,580</div>
+                                    <div class="mock-stat-change">↑ 12% from last month</div>
+                                </div>
+                                <div class="mock-stat-card">
+                                    <div class="mock-stat-label">Pending Orders</div>
+                                    <div class="mock-stat-value">37</div>
+                                    <div class="mock-stat-change">8 ready to ship</div>
+                                </div>
+                                <div class="mock-stat-card">
+                                    <div class="mock-stat-label">Active Titles</div>
+                                    <div class="mock-stat-value">142</div>
+                                    <div class="mock-stat-change">6 in production</div>
+                                </div>
+                                <div class="mock-stat-card">
+                                    <div class="mock-stat-label">Low Stock Alerts</div>
+                                    <div class="mock-stat-value">5</div>
+                                    <div class="mock-stat-change" style="color: var(--bright-orange);">Needs attention</div>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                                <div class="mock-card">
+                                    <div class="mock-card-header">
+                                        <div class="mock-card-title">Recent Orders</div>
+                                        <button class="mock-btn-secondary mock-btn">View All</button>
+                                    </div>
+                                    <table class="mock-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Order #</th>
+                                                <th>Customer</th>
+                                                <th>Items</th>
+                                                <th>Total</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#ORD-1247</td>
+                                                <td>Riverside Books</td>
+                                                <td>12</td>
+                                                <td>$485.20</td>
+                                                <td><span class="mock-badge mock-badge-green">Shipped</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#ORD-1246</td>
+                                                <td>City Schools Dist</td>
+                                                <td>45</td>
+                                                <td>$1,340.50</td>
+                                                <td><span class="mock-badge mock-badge-amber">Processing</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>#ORD-1245</td>
+                                                <td>Barnes Literary</td>
+                                                <td>8</td>
+                                                <td>$290.00</td>
+                                                <td><span class="mock-badge mock-badge-blue">Ready</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="mock-card">
+                                    <div class="mock-card-header">
+                                        <div class="mock-card-title">Quick Actions</div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                        <button class="mock-btn">+ Create New Title</button>
+                                        <button class="mock-btn-secondary mock-btn">Enter Order</button>
+                                        <button class="mock-btn-secondary mock-btn">Record Print Run</button>
+                                        <button class="mock-btn-secondary mock-btn">Export to QuickBooks</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direction 2: Spacious Modern - Top Nav -->
+        <div class="direction-card" data-direction="2">
+            <div class="direction-header">
+                <div class="direction-name">2. Spacious Modern</div>
+                <div class="direction-description">Top navigation with generous spacing. More breathing room, less visual density. Modern SaaS aesthetic with card-based layouts.</div>
+                <div class="direction-traits">
+                    <span class="trait-badge">Top Navigation</span>
+                    <span class="trait-badge">Spacious</span>
+                    <span class="trait-badge">Card-Based</span>
+                    <span class="trait-badge">Modern SaaS</span>
+                </div>
+            </div>
+            <div class="mockup-frame">
+                <div class="mock-app spacious-layout" style="flex-direction: column;">
+                    <div style="background: var(--warm-white); border-bottom: 1px solid var(--warm-border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 2rem; align-items: center;">
+                            <div class="mock-logo" style="margin: 0;">Salina ERP</div>
+                            <div style="display: flex; gap: 1.5rem;">
+                                <div class="mock-nav-item active" style="margin: 0; padding: 0.5rem 0;">Dashboard</div>
+                                <div class="mock-nav-item" style="margin: 0; padding: 0.5rem 0;">Titles</div>
+                                <div class="mock-nav-item" style="margin: 0; padding: 0.5rem 0;">Orders</div>
+                                <div class="mock-nav-item" style="margin: 0; padding: 0.5rem 0;">Inventory</div>
+                                <div class="mock-nav-item" style="margin: 0; padding: 0.5rem 0;">Reports</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <input type="search" class="mock-search" placeholder="Search..." style="width: 200px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--ink-blue);"></div>
+                        </div>
+                    </div>
+                    <div class="mock-main" style="flex-direction: column;">
+                        <div class="mock-content" style="max-width: 1400px; margin: 0 auto; width: 100%;">
+                            <div class="mock-page-header" style="margin-bottom: 2.5rem;">
+                                <div class="mock-page-title" style="font-size: 2.25rem;">Dashboard</div>
+                                <div class="mock-page-subtitle">Tuesday, November 17, 2025</div>
+                            </div>
+
+                            <div class="mock-stats-grid" style="margin-bottom: 2.5rem;">
+                                <div class="mock-stat-card" style="padding: 2rem;">
+                                    <div class="mock-stat-label">Total Sales</div>
+                                    <div class="mock-stat-value">$24,580</div>
+                                    <div class="mock-stat-change">↑ 12% from last month</div>
+                                </div>
+                                <div class="mock-stat-card" style="padding: 2rem;">
+                                    <div class="mock-stat-label">Orders</div>
+                                    <div class="mock-stat-value">37</div>
+                                    <div class="mock-stat-change">8 ready to ship</div>
+                                </div>
+                                <div class="mock-stat-card" style="padding: 2rem;">
+                                    <div class="mock-stat-label">Titles</div>
+                                    <div class="mock-stat-value">142</div>
+                                    <div class="mock-stat-change">6 in production</div>
+                                </div>
+                            </div>
+
+                            <div class="mock-card" style="padding: 2rem;">
+                                <div class="mock-card-header" style="margin-bottom: 2rem;">
+                                    <div class="mock-card-title" style="font-size: 1.5rem;">Recent Activity</div>
+                                    <button class="mock-btn">+ Create New Title</button>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                                    <div style="padding-bottom: 1.5rem; border-bottom: 1px solid var(--warm-border);">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                            <strong>Order #ORD-1247 shipped</strong>
+                                            <span style="color: var(--warm-muted); font-size: 0.875rem;">2 hours ago</span>
+                                        </div>
+                                        <div style="color: var(--warm-muted); font-size: 0.875rem;">Riverside Books • 12 items • $485.20</div>
+                                    </div>
+                                    <div style="padding-bottom: 1.5rem; border-bottom: 1px solid var(--warm-border);">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                            <strong>Low stock alert: The Great Gatsby</strong>
+                                            <span style="color: var(--warm-muted); font-size: 0.875rem;">5 hours ago</span>
+                                        </div>
+                                        <div style="color: var(--warm-muted); font-size: 0.875rem;">Hardcover • 8 units remaining • ISBN 978-1-12345-001-7</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direction 3: Title Creation Wizard -->
+        <div class="direction-card" data-direction="3">
+            <div class="direction-header">
+                <div class="direction-name">3. Guided Wizard Flow</div>
+                <div class="direction-description">Title creation wizard - your defining experience. Clear stepper shows progress. Progressive disclosure keeps focus on current step.</div>
+                <div class="direction-traits">
+                    <span class="trait-badge">Wizard Pattern</span>
+                    <span class="trait-badge">Progressive</span>
+                    <span class="trait-badge">Guided</span>
+                    <span class="trait-badge">Core Workflow</span>
+                </div>
+            </div>
+            <div class="mockup-frame">
+                <div class="mock-app">
+                    <div class="mock-sidebar">
+                        <div class="mock-logo">Salina ERP</div>
+                        <div class="mock-nav-item">📊 Dashboard</div>
+                        <div class="mock-nav-item active">📚 Titles</div>
+                        <div class="mock-nav-item">👥 Customers</div>
+                        <div class="mock-nav-item">📦 Orders</div>
+                        <div class="mock-nav-item">📥 Inventory</div>
+                    </div>
+                    <div class="mock-main">
+                        <div class="mock-topbar">
+                            <div class="mock-breadcrumb">Titles / Create New Title</div>
+                            <button class="mock-btn-secondary mock-btn">Save Draft</button>
+                        </div>
+                        <div class="mock-content">
+                            <div class="mock-page-header">
+                                <div class="mock-page-title">Create New Title</div>
+                                <div class="mock-page-subtitle">Let's get your book into the system</div>
+                            </div>
+
+                            <div class="wizard-stepper">
+                                <div class="wizard-step complete">
+                                    <div class="wizard-step-number">✓</div>
+                                    <div class="wizard-step-label">Basic Info</div>
+                                </div>
+                                <div class="wizard-step active">
+                                    <div class="wizard-step-number">2</div>
+                                    <div class="wizard-step-label">ISBN</div>
+                                </div>
+                                <div class="wizard-step">
+                                    <div class="wizard-step-number">3</div>
+                                    <div class="wizard-step-label">Contributors</div>
+                                </div>
+                                <div class="wizard-step">
+                                    <div class="wizard-step-number">4</div>
+                                    <div class="wizard-step-label">Metadata</div>
+                                </div>
+                                <div class="wizard-step">
+                                    <div class="wizard-step-number">5</div>
+                                    <div class="wizard-step-label">Pricing</div>
+                                </div>
+                                <div class="wizard-step">
+                                    <div class="wizard-step-number">6</div>
+                                    <div class="wizard-step-label">Review</div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h3 style="margin-bottom: 1.5rem; color: var(--ink-blue);">Step 2: ISBN Assignment</h3>
+
+                                <div style="background: #fef3c7; border: 1px solid var(--warm-amber); border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem;">
+                                    <div style="font-weight: 600; color: #78350f; margin-bottom: 0.5rem;">📊 ISBN Block Status</div>
+                                    <div style="color: #78350f; font-size: 0.875rem;">Block 978-1-12345-0XX: 45 of 100 used</div>
+                                    <div style="background: #fde68a; height: 8px; border-radius: 4px; margin-top: 0.5rem; overflow: hidden;">
+                                        <div style="background: var(--warm-amber); width: 45%; height: 100%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Select Format</label>
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                                        <div style="padding: 1rem; border: 2px solid var(--ink-blue); border-radius: 6px; background: #dbeafe; cursor: pointer;">
+                                            <div style="font-weight: 600; color: var(--ink-blue);">📖 Hardcover</div>
+                                        </div>
+                                        <div style="padding: 1rem; border: 1px solid var(--warm-border); border-radius: 6px; cursor: pointer;">
+                                            <div style="color: var(--warm-muted);">📘 Paperback</div>
+                                        </div>
+                                        <div style="padding: 1rem; border: 1px solid var(--warm-border); border-radius: 6px; cursor: pointer;">
+                                            <div style="color: var(--warm-muted);">📱 Ebook</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Assigned ISBN</label>
+                                    <div style="display: flex; gap: 1rem; align-items: center;">
+                                        <input type="text" class="form-input" value="978-1-12345-046-3" readonly style="font-family: 'JetBrains Mono', monospace; background: var(--warm-cream);">
+                                        <button class="mock-btn-secondary mock-btn">Choose Different</button>
+                                    </div>
+                                    <div class="form-helper">Auto-assigned next available ISBN with calculated check digit</div>
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--warm-border);">
+                                    <button class="mock-btn-secondary mock-btn">← Back to Basic Info</button>
+                                    <button class="mock-btn">Continue to Contributors →</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direction 4: Data Table Heavy -->
+        <div class="direction-card" data-direction="4">
+            <div class="direction-header">
+                <div class="direction-name">4. Data Table View</div>
+                <div class="direction-description">Titles list optimized for Managing Editors. Dense table view with inline actions. Efficient for power users scanning many titles.</div>
+                <div class="direction-traits">
+                    <span class="trait-badge">Table-Centric</span>
+                    <span class="trait-badge">Dense</span>
+                    <span class="trait-badge">Power User</span>
+                    <span class="trait-badge">Efficient</span>
+                </div>
+            </div>
+            <div class="mockup-frame">
+                <div class="mock-app dense-layout">
+                    <div class="mock-sidebar">
+                        <div class="mock-logo">Salina ERP</div>
+                        <div class="mock-nav-item">📊 Dashboard</div>
+                        <div class="mock-nav-item active">📚 Titles</div>
+                        <div class="mock-nav-item">👥 Customers</div>
+                        <div class="mock-nav-item">📦 Orders</div>
+                    </div>
+                    <div class="mock-main">
+                        <div class="mock-topbar">
+                            <div class="mock-breadcrumb">Titles / All Titles</div>
+                            <div style="display: flex; gap: 1rem;">
+                                <input type="search" class="mock-search" placeholder="Search titles, ISBN, author...">
+                                <button class="mock-btn">+ Create Title</button>
+                            </div>
+                        </div>
+                        <div class="mock-content">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <span class="mock-badge mock-badge-blue" style="cursor: pointer;">All (142)</span>
+                                    <span class="mock-badge" style="background: var(--warm-cream); color: var(--warm-muted); cursor: pointer;">Active (128)</span>
+                                    <span class="mock-badge" style="background: var(--warm-cream); color: var(--warm-muted); cursor: pointer;">In Production (6)</span>
+                                    <span class="mock-badge" style="background: var(--warm-cream); color: var(--warm-muted); cursor: pointer;">Out of Print (8)</span>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; font-size: 0.875rem; color: var(--warm-muted);">
+                                    <span>Sort by:</span>
+                                    <select style="border: 1px solid var(--warm-border); border-radius: 4px; padding: 0.25rem 0.5rem;">
+                                        <option>Title (A-Z)</option>
+                                        <option>Recent</option>
+                                        <option>Sales</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mock-card" style="padding: 0;">
+                                <table class="mock-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>ISBN</th>
+                                            <th>Format</th>
+                                            <th>Author</th>
+                                            <th>Stock</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>The Great Gatsby</strong></td>
+                                            <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">978-1-12345-001-7</td>
+                                            <td><span class="mock-badge mock-badge-blue">Hardcover</span></td>
+                                            <td>F. Scott Fitzgerald</td>
+                                            <td style="color: var(--bright-orange); font-weight: 600;">8 units</td>
+                                            <td><span class="mock-badge mock-badge-green">Active</span></td>
+                                            <td>
+                                                <button class="mock-btn-secondary mock-btn" style="padding: 0.375rem 0.75rem; font-size: 0.75rem;">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>To Kill a Mockingbird</strong></td>
+                                            <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">978-1-12345-002-4</td>
+                                            <td><span class="mock-badge mock-badge-blue">Hardcover</span></td>
+                                            <td>Harper Lee</td>
+                                            <td>124 units</td>
+                                            <td><span class="mock-badge mock-badge-green">Active</span></td>
+                                            <td>
+                                                <button class="mock-btn-secondary mock-btn" style="padding: 0.375rem 0.75rem; font-size: 0.75rem;">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>1984</strong></td>
+                                            <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">978-1-12345-003-1</td>
+                                            <td><span class="mock-badge mock-badge-amber">Paperback</span></td>
+                                            <td>George Orwell</td>
+                                            <td>67 units</td>
+                                            <td><span class="mock-badge mock-badge-green">Active</span></td>
+                                            <td>
+                                                <button class="mock-btn-secondary mock-btn" style="padding: 0.375rem 0.75rem; font-size: 0.75rem;">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Pride and Prejudice</strong></td>
+                                            <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">978-1-12345-004-8</td>
+                                            <td><span class="mock-badge mock-badge-blue">Hardcover</span></td>
+                                            <td>Jane Austen</td>
+                                            <td>45 units</td>
+                                            <td><span class="mock-badge mock-badge-green">Active</span></td>
+                                            <td>
+                                                <button class="mock-btn-secondary mock-btn" style="padding: 0.375rem 0.75rem; font-size: 0.75rem;">Edit</button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>The Catcher in the Rye</strong></td>
+                                            <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">978-1-12345-005-5</td>
+                                            <td><span class="mock-badge mock-badge-amber">Paperback</span></td>
+                                            <td>J.D. Salinger</td>
+                                            <td>92 units</td>
+                                            <td><span class="mock-badge mock-badge-green">Active</span></td>
+                                            <td>
+                                                <button class="mock-btn-secondary mock-btn" style="padding: 0.375rem 0.75rem; font-size: 0.75rem;">Edit</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div style="padding: 1rem; border-top: 1px solid var(--warm-border); display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="font-size: 0.875rem; color: var(--warm-muted);">Showing 1-5 of 142 titles</div>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button class="mock-btn-secondary mock-btn" style="padding: 0.5rem 1rem;">← Prev</button>
+                                        <button class="mock-btn-secondary mock-btn" style="padding: 0.5rem 1rem;">Next →</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direction 5: Card Gallery View -->
+        <div class="direction-card" data-direction="5">
+            <div class="direction-header">
+                <div class="direction-name">5. Card Gallery View</div>
+                <div class="direction-description">Visual card-based title browser. More approachable, less intimidating than dense tables. Better for seeing cover art and visual scanning.</div>
+                <div class="direction-traits">
+                    <span class="trait-badge">Card-Based</span>
+                    <span class="trait-badge">Visual</span>
+                    <span class="trait-badge">Approachable</span>
+                    <span class="trait-badge">Browsing-Friendly</span>
+                </div>
+            </div>
+            <div class="mockup-frame">
+                <div class="mock-app">
+                    <div class="mock-sidebar">
+                        <div class="mock-logo">Salina ERP</div>
+                        <div class="mock-nav-item">📊 Dashboard</div>
+                        <div class="mock-nav-item active">📚 Titles</div>
+                        <div class="mock-nav-item">👥 Customers</div>
+                        <div class="mock-nav-item">📦 Orders</div>
+                    </div>
+                    <div class="mock-main">
+                        <div class="mock-topbar">
+                            <div class="mock-breadcrumb">Titles / Browse</div>
+                            <div style="display: flex; gap: 1rem;">
+                                <input type="search" class="mock-search" placeholder="Search titles...">
+                                <button class="mock-btn">+ Create Title</button>
+                            </div>
+                        </div>
+                        <div class="mock-content">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                                <div class="mock-page-title" style="font-size: 1.5rem;">All Titles (142)</div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <span class="mock-badge mock-badge-blue" style="cursor: pointer;">Active</span>
+                                    <span class="mock-badge" style="background: var(--warm-cream); color: var(--warm-muted); cursor: pointer;">In Production</span>
+                                    <span class="mock-badge" style="background: var(--warm-cream); color: var(--warm-muted); cursor: pointer;">Out of Print</span>
+                                </div>
+                            </div>
+
+                            <div class="card-grid">
+                                <div class="title-card">
+                                    <div style="width: 100%; aspect-ratio: 2/3; background: linear-gradient(135deg, var(--ink-blue), #3b82f6); border-radius: 4px; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.875rem;">Cover</div>
+                                    <div class="title-card-title">The Great Gatsby</div>
+                                    <div class="title-card-meta">F. Scott Fitzgerald</div>
+                                    <div class="title-card-meta" style="margin-top: 0.5rem;">
+                                        <span class="mock-badge mock-badge-blue">Hardcover</span>
+                                        <span style="color: var(--bright-orange); font-weight: 600; margin-left: 0.5rem;">8 in stock</span>
+                                    </div>
+                                </div>
+
+                                <div class="title-card">
+                                    <div style="width: 100%; aspect-ratio: 2/3; background: linear-gradient(135deg, var(--warm-amber), #f59e0b); border-radius: 4px; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.875rem;">Cover</div>
+                                    <div class="title-card-title">To Kill a Mockingbird</div>
+                                    <div class="title-card-meta">Harper Lee</div>
+                                    <div class="title-card-meta" style="margin-top: 0.5rem;">
+                                        <span class="mock-badge mock-badge-blue">Hardcover</span>
+                                        <span style="margin-left: 0.5rem;">124 in stock</span>
+                                    </div>
+                                </div>
+
+                                <div class="title-card">
+                                    <div style="width: 100%; aspect-ratio: 2/3; background: linear-gradient(135deg, var(--deep-red), #ef4444); border-radius: 4px; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.875rem;">Cover</div>
+                                    <div class="title-card-title">1984</div>
+                                    <div class="title-card-meta">George Orwell</div>
+                                    <div class="title-card-meta" style="margin-top: 0.5rem;">
+                                        <span class="mock-badge mock-badge-amber">Paperback</span>
+                                        <span style="margin-left: 0.5rem;">67 in stock</span>
+                                    </div>
+                                </div>
+
+                                <div class="title-card">
+                                    <div style="width: 100%; aspect-ratio: 2/3; background: linear-gradient(135deg, var(--rich-green), #10b981); border-radius: 4px; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.875rem;">Cover</div>
+                                    <div class="title-card-title">Pride and Prejudice</div>
+                                    <div class="title-card-meta">Jane Austen</div>
+                                    <div class="title-card-meta" style="margin-top: 0.5rem;">
+                                        <span class="mock-badge mock-badge-blue">Hardcover</span>
+                                        <span style="margin-left: 0.5rem;">45 in stock</span>
+                                    </div>
+                                </div>
+
+                                <div class="title-card">
+                                    <div style="width: 100%; aspect-ratio: 2/3; background: linear-gradient(135deg, #78716c, #a8a29e); border-radius: 4px; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.875rem;">Cover</div>
+                                    <div class="title-card-title">The Catcher in the Rye</div>
+                                    <div class="title-card-meta">J.D. Salinger</div>
+                                    <div class="title-card-meta" style="margin-top: 0.5rem;">
+                                        <span class="mock-badge mock-badge-amber">Paperback</span>
+                                        <span style="margin-left: 0.5rem;">92 in stock</span>
+                                    </div>
+                                </div>
+
+                                <div class="title-card">
+                                    <div style="width: 100%; aspect-ratio: 2/3; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 4px; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.875rem;">Cover</div>
+                                    <div class="title-card-title">Brave New World</div>
+                                    <div class="title-card-meta">Aldous Huxley</div>
+                                    <div class="title-card-meta" style="margin-top: 0.5rem;">
+                                        <span class="mock-badge mock-badge-blue">Hardcover</span>
+                                        <span style="margin-left: 0.5rem;">56 in stock</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Direction 6: Compact Sidebar -->
+        <div class="direction-card" data-direction="6">
+            <div class="direction-header">
+                <div class="direction-name">6. Compact Navigation</div>
+                <div class="direction-description">Collapsed icon-based sidebar maximizes content space. More screen real estate for data-heavy workflows. Modern, efficient.</div>
+                <div class="direction-traits">
+                    <span class="trait-badge">Compact Sidebar</span>
+                    <span class="trait-badge">Maximized Space</span>
+                    <span class="trait-badge">Icon-Based</span>
+                    <span class="trait-badge">Efficient</span>
+                </div>
+            </div>
+            <div class="mockup-frame">
+                <div class="mock-app">
+                    <div class="mock-sidebar mock-sidebar-compact" style="padding: 1rem 0.5rem;">
+                        <div style="width: 40px; height: 40px; background: var(--ink-blue); border-radius: 8px; margin: 0 auto 2rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">S</div>
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                            <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #dbeafe; color: var(--ink-blue); font-size: 1.25rem; cursor: pointer;">📊</div>
+                            <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--warm-muted); font-size: 1.25rem; cursor: pointer;">📚</div>
+                            <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--warm-muted); font-size: 1.25rem; cursor: pointer;">👥</div>
+                            <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--warm-muted); font-size: 1.25rem; cursor: pointer;">📦</div>
+                            <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--warm-muted); font-size: 1.25rem; cursor: pointer;">📥</div>
+                        </div>
+                    </div>
+                    <div class="mock-main">
+                        <div class="mock-topbar">
+                            <div>
+                                <div style="font-weight: 600; color: var(--warm-black); font-size: 1.125rem;">Dashboard</div>
+                                <div class="mock-breadcrumb">Overview / Publisher View</div>
+                            </div>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <input type="search" class="mock-search" placeholder="Search...">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--ink-blue);"></div>
+                            </div>
+                        </div>
+                        <div class="mock-content">
+                            <div class="mock-stats-grid" style="margin-bottom: 1.5rem;">
+                                <div class="mock-stat-card">
+                                    <div class="mock-stat-label">Revenue MTD</div>
+                                    <div class="mock-stat-value">$24,580</div>
+                                    <div class="mock-stat-change">↑ 12%</div>
+                                </div>
+                                <div class="mock-stat-card">
+                                    <div class="mock-stat-label">Orders</div>
+                                    <div class="mock-stat-value">37</div>
+                                    <div class="mock-stat-change">8 to ship</div>
+                                </div>
+                                <div class="mock-stat-card">
+                                    <div class="mock-stat-label">Titles</div>
+                                    <div class="mock-stat-value">142</div>
+                                    <div class="mock-stat-change">6 active</div>
+                                </div>
+                                <div class="mock-stat-card">
+                                    <div class="mock-stat-label">Alerts</div>
+                                    <div class="mock-stat-value">5</div>
+                                    <div class="mock-stat-change" style="color: var(--bright-orange);">Low stock</div>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="mock-card">
+                                    <div class="mock-card-header">
+                                        <div class="mock-card-title">Sales Trend</div>
+                                        <select style="border: 1px solid var(--warm-border); border-radius: 4px; padding: 0.375rem 0.75rem; font-size: 0.875rem;">
+                                            <option>Last 30 days</option>
+                                        </select>
+                                    </div>
+                                    <div style="height: 200px; background: linear-gradient(to top, #dbeafe 0%, transparent 100%); border-radius: 4px; position: relative;">
+                                        <div style="position: absolute; bottom: 10%; left: 5%; right: 5%; border-bottom: 2px solid var(--ink-blue);"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mock-card">
+                                    <div class="mock-card-header">
+                                        <div class="mock-card-title">Top Sellers</div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                        <div style="display: flex; justify-content: space-between; padding-bottom: 0.75rem; border-bottom: 1px solid var(--warm-border);">
+                                            <div>
+                                                <div style="font-weight: 600; font-size: 0.875rem;">The Great Gatsby</div>
+                                                <div style="font-size: 0.75rem; color: var(--warm-muted);">Hardcover</div>
+                                            </div>
+                                            <div style="text-align: right;">
+                                                <div style="font-weight: 600; color: var(--ink-blue);">$2,450</div>
+                                                <div style="font-size: 0.75rem; color: var(--warm-muted);">124 sold</div>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; padding-bottom: 0.75rem; border-bottom: 1px solid var(--warm-border);">
+                                            <div>
+                                                <div style="font-weight: 600; font-size: 0.875rem;">1984</div>
+                                                <div style="font-size: 0.75rem; color: var(--warm-muted);">Paperback</div>
+                                            </div>
+                                            <div style="text-align: right;">
+                                                <div style="font-weight: 600; color: var(--ink-blue);">$1,890</div>
+                                                <div style="font-size: 0.75rem; color: var(--warm-muted);">98 sold</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thumbnail Navigation -->
+        <div class="thumbnail-grid" id="thumbnails" style="display: none;">
+            <div class="thumbnail active" onclick="goToDirection(1)">
+                <div class="thumbnail-label">1. Professional Dashboard</div>
+            </div>
+            <div class="thumbnail" onclick="goToDirection(2)">
+                <div class="thumbnail-label">2. Spacious Modern</div>
+            </div>
+            <div class="thumbnail" onclick="goToDirection(3)">
+                <div class="thumbnail-label">3. Guided Wizard</div>
+            </div>
+            <div class="thumbnail" onclick="goToDirection(4)">
+                <div class="thumbnail-label">4. Data Table</div>
+            </div>
+            <div class="thumbnail" onclick="goToDirection(5)">
+                <div class="thumbnail-label">5. Card Gallery</div>
+            </div>
+            <div class="thumbnail" onclick="goToDirection(6)">
+                <div class="thumbnail-label">6. Compact Nav</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDirection = 1;
+        const totalDirections = 6;
+
+        function showDirection(num) {
+            document.querySelectorAll('.direction-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`.direction-card[data-direction="${num}"]`).classList.add('active');
+
+            document.querySelectorAll('.thumbnail').forEach(thumb => {
+                thumb.classList.remove('active');
+            });
+            document.querySelectorAll('.thumbnail')[num - 1].classList.add('active');
+
+            document.getElementById('current-direction').textContent = num;
+            currentDirection = num;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextDirection() {
+            if (currentDirection < totalDirections) {
+                showDirection(currentDirection + 1);
+            }
+        }
+
+        function prevDirection() {
+            if (currentDirection > 1) {
+                showDirection(currentDirection - 1);
+            }
+        }
+
+        function goToDirection(num) {
+            showDirection(num);
+            toggleThumbnails();
+        }
+
+        function toggleThumbnails() {
+            const thumbs = document.getElementById('thumbnails');
+            thumbs.style.display = thumbs.style.display === 'none' ? 'grid' : 'none';
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') prevDirection();
+            if (e.key === 'ArrowRight') nextDirection();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salina ERP - Color Theme Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .theme-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .theme-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        .theme-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .theme-description {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .theme-personality {
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: #f9f9f9;
+            border-left: 3px solid;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .color-palette {
+            padding: 1.5rem;
+            background: #fafafa;
+        }
+
+        .palette-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .palette-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .palette-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .swatch {
+            flex: 1;
+            min-width: 80px;
+            height: 60px;
+            border-radius: 6px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .swatch:hover {
+            transform: scale(1.05);
+        }
+
+        .swatch-label {
+            position: absolute;
+            bottom: 4px;
+            left: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .component-preview {
+            padding: 1.5rem;
+        }
+
+        .preview-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #666;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input {
+            padding: 0.625rem;
+            border-radius: 6px;
+            border: 1px solid;
+            font-size: 0.875rem;
+            width: 100%;
+        }
+
+        .input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+        }
+
+        .card {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid;
+        }
+
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            border-left: 4px solid;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.625rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .comparison {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+
+        .comparison h2 {
+            margin-bottom: 1.5rem;
+            color: #1a1a1a;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .comparison-item h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .best-for {
+            background: #f0f9ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .best-for-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #0369a1;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .best-for-text {
+            font-size: 0.875rem;
+            color: #334155;
+        }
+
+        @media (max-width: 1200px) {
+            .comparison-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .theme-grid {
+                grid-template-columns: 1fr;
+            }
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Salina Bookshelf ERP</h1>
+        <p>Color Theme Explorer - Choose the visual foundation that makes you feel empowered and in control</p>
+    </div>
+
+    <div class="theme-grid">
+        <!-- Theme 1: Trust Blue -->
+        <div class="theme-card">
+            <div class="theme-header">
+                <div class="theme-name" style="color: #2563eb;">1. Trust Blue</div>
+                <div class="theme-description">Classic professional ERP aesthetic. Blue conveys trust, reliability, and competence - perfect for financial and operational software.</div>
+                <div class="theme-personality" style="border-color: #2563eb;">
+                    <strong>Personality:</strong> Trustworthy • Professional • Reliable
+                </div>
+            </div>
+
+            <div class="color-palette">
+                <div class="palette-section">
+                    <div class="palette-label">Primary & Secondary</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #2563eb;">
+                            <div class="swatch-label" style="color: white;">#2563eb<br/>Primary</div>
+                        </div>
+                        <div class="swatch" style="background: #7c3aed;">
+                            <div class="swatch-label" style="color: white;">#7c3aed<br/>Secondary</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="palette-section">
+                    <div class="palette-label">Semantic Colors</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #10b981;">
+                            <div class="swatch-label" style="color: white;">#10b981<br/>Success</div>
+                        </div>
+                        <div class="swatch" style="background: #f59e0b;">
+                            <div class="swatch-label" style="color: white;">#f59e0b<br/>Warning</div>
+                        </div>
+                        <div class="swatch" style="background: #ef4444;">
+                            <div class="swatch-label" style="color: white;">#ef4444<br/>Error</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="palette-section">
+                    <div class="palette-label">Neutral Grayscale</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #f8fafc;">
+                            <div class="swatch-label" style="color: #1e293b;">#f8fafc<br/>BG</div>
+                        </div>
+                        <div class="swatch" style="background: #64748b;">
+                            <div class="swatch-label" style="color: white;">#64748b<br/>Muted</div>
+                        </div>
+                        <div class="swatch" style="background: #0f172a;">
+                            <div class="swatch-label" style="color: white;">#0f172a<br/>Text</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="component-preview">
+                <div class="preview-section">
+                    <div class="preview-label">Buttons</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #2563eb; color: white;">Primary Action</button>
+                        <button class="btn" style="background: #e2e8f0; color: #1e293b;">Secondary</button>
+                        <button class="btn" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">Destructive</button>
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Form Inputs</div>
+                    <div class="input-group">
+                        <input class="input" placeholder="Title name..." style="border-color: #cbd5e1; background: white; color: #0f172a;">
+                        <input class="input" placeholder="Email address..." value="publisher@example.com" style="border-color: #2563eb; background: #eff6ff; color: #1e40af;">
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Alerts</div>
+                    <div class="alert" style="background: #dbeafe; border-color: #2563eb; color: #1e40af;">
+                        ℹ️ ISBN block has 5 remaining. Consider ordering more.
+                    </div>
+                    <div class="alert" style="background: #dcfce7; border-color: #10b981; color: #065f46; margin-top: 0.5rem;">
+                        ✓ Order shipped successfully with tracking #12345
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Cards & Badges</div>
+                    <div class="card" style="background: white; border-color: #e2e8f0;">
+                        <strong style="color: #0f172a;">The Great Gatsby</strong>
+                        <div style="margin-top: 0.5rem; color: #64748b; font-size: 0.875rem;">
+                            <span class="badge" style="background: #dbeafe; color: #1e40af;">Hardcover</span>
+                            <span class="badge" style="background: #f1f5f9; color: #475569; margin-left: 0.5rem;">ISBN: 978-1-12345-001-7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="best-for">
+                <div class="best-for-label">Best For</div>
+                <div class="best-for-text">Publishers who want a traditional, professional ERP feel. Familiar blue = trust for financial software. Safe, credible choice.</div>
+            </div>
+        </div>
+
+        <!-- Theme 2: Modern Slate -->
+        <div class="theme-card">
+            <div class="theme-header">
+                <div class="theme-name" style="color: #0f172a;">2. Modern Slate</div>
+                <div class="theme-description">Contemporary neutral palette with subtle color accents. Clean, sophisticated, and timeless - lets content take center stage.</div>
+                <div class="theme-personality" style="border-color: #64748b;">
+                    <strong>Personality:</strong> Sophisticated • Clean • Focused
+                </div>
+            </div>
+
+            <div class="color-palette">
+                <div class="palette-section">
+                    <div class="palette-label">Primary & Secondary</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #0f172a;">
+                            <div class="swatch-label" style="color: white;">#0f172a<br/>Primary</div>
+                        </div>
+                        <div class="swatch" style="background: #64748b;">
+                            <div class="swatch-label" style="color: white;">#64748b<br/>Secondary</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="palette-section">
+                    <div class="palette-label">Semantic Colors</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #059669;">
+                            <div class="swatch-label" style="color: white;">#059669<br/>Success</div>
+                        </div>
+                        <div class="swatch" style="background: #d97706;">
+                            <div class="swatch-label" style="color: white;">#d97706<br/>Warning</div>
+                        </div>
+                        <div class="swatch" style="background: #dc2626;">
+                            <div class="swatch-label" style="color: white;">#dc2626<br/>Error</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="palette-section">
+                    <div class="palette-label">Neutral Grayscale</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #f8fafc;">
+                            <div class="swatch-label" style="color: #0f172a;">#f8fafc<br/>BG</div>
+                        </div>
+                        <div class="swatch" style="background: #94a3b8;">
+                            <div class="swatch-label" style="color: white;">#94a3b8<br/>Muted</div>
+                        </div>
+                        <div class="swatch" style="background: #0f172a;">
+                            <div class="swatch-label" style="color: white;">#0f172a<br/>Text</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="component-preview">
+                <div class="preview-section">
+                    <div class="preview-label">Buttons</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #0f172a; color: white;">Primary Action</button>
+                        <button class="btn" style="background: #f1f5f9; color: #0f172a;">Secondary</button>
+                        <button class="btn" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">Destructive</button>
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Form Inputs</div>
+                    <div class="input-group">
+                        <input class="input" placeholder="Title name..." style="border-color: #cbd5e1; background: white; color: #0f172a;">
+                        <input class="input" placeholder="Email address..." value="publisher@example.com" style="border-color: #0f172a; background: #f8fafc; color: #0f172a;">
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Alerts</div>
+                    <div class="alert" style="background: #f1f5f9; border-color: #64748b; color: #1e293b;">
+                        ℹ️ ISBN block has 5 remaining. Consider ordering more.
+                    </div>
+                    <div class="alert" style="background: #d1fae5; border-color: #059669; color: #064e3b; margin-top: 0.5rem;">
+                        ✓ Order shipped successfully with tracking #12345
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Cards & Badges</div>
+                    <div class="card" style="background: white; border-color: #e2e8f0;">
+                        <strong style="color: #0f172a;">The Great Gatsby</strong>
+                        <div style="margin-top: 0.5rem; color: #64748b; font-size: 0.875rem;">
+                            <span class="badge" style="background: #f1f5f9; color: #0f172a;">Hardcover</span>
+                            <span class="badge" style="background: #f8fafc; color: #475569; margin-left: 0.5rem; border: 1px solid #e2e8f0;">ISBN: 978-1-12345-001-7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="best-for">
+                <div class="best-for-label">Best For</div>
+                <div class="best-for-text">Modern, design-forward publishers. Neutral palette focuses attention on content and data. Sophisticated without being flashy.</div>
+            </div>
+        </div>
+
+        <!-- Theme 3: Publishing Ink -->
+        <div class="theme-card">
+            <div class="theme-header">
+                <div class="theme-name" style="color: #1e3a8a;">3. Publishing Ink</div>
+                <div class="theme-description">Inspired by editorial tradition - deep ink blue with warm amber accents. Honors publishing heritage while feeling contemporary.</div>
+                <div class="theme-personality" style="border-color: #1e3a8a;">
+                    <strong>Personality:</strong> Editorial • Classic • Warm
+                </div>
+            </div>
+
+            <div class="color-palette">
+                <div class="palette-section">
+                    <div class="palette-label">Primary & Secondary</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #1e3a8a;">
+                            <div class="swatch-label" style="color: white;">#1e3a8a<br/>Primary</div>
+                        </div>
+                        <div class="swatch" style="background: #d97706;">
+                            <div class="swatch-label" style="color: white;">#d97706<br/>Secondary</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="palette-section">
+                    <div class="palette-label">Semantic Colors</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #047857;">
+                            <div class="swatch-label" style="color: white;">#047857<br/>Success</div>
+                        </div>
+                        <div class="swatch" style="background: #ea580c;">
+                            <div class="swatch-label" style="color: white;">#ea580c<br/>Warning</div>
+                        </div>
+                        <div class="swatch" style="background: #b91c1c;">
+                            <div class="swatch-label" style="color: white;">#b91c1c<br/>Error</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="palette-section">
+                    <div class="palette-label">Neutral Grayscale</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #fefce8;">
+                            <div class="swatch-label" style="color: #1e293b;">#fefce8<br/>BG</div>
+                        </div>
+                        <div class="swatch" style="background: #78716c;">
+                            <div class="swatch-label" style="color: white;">#78716c<br/>Muted</div>
+                        </div>
+                        <div class="swatch" style="background: #1c1917;">
+                            <div class="swatch-label" style="color: white;">#1c1917<br/>Text</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="component-preview">
+                <div class="preview-section">
+                    <div class="preview-label">Buttons</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #1e3a8a; color: white;">Primary Action</button>
+                        <button class="btn" style="background: #fef3c7; color: #78350f;">Secondary</button>
+                        <button class="btn" style="background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;">Destructive</button>
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Form Inputs</div>
+                    <div class="input-group">
+                        <input class="input" placeholder="Title name..." style="border-color: #d6d3d1; background: #fefce8; color: #1c1917;">
+                        <input class="input" placeholder="Email address..." value="publisher@example.com" style="border-color: #1e3a8a; background: #dbeafe; color: #1e3a8a;">
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Alerts</div>
+                    <div class="alert" style="background: #fef3c7; border-color: #d97706; color: #78350f;">
+                        ℹ️ ISBN block has 5 remaining. Consider ordering more.
+                    </div>
+                    <div class="alert" style="background: #d1fae5; border-color: #047857; color: #064e3b; margin-top: 0.5rem;">
+                        ✓ Order shipped successfully with tracking #12345
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Cards & Badges</div>
+                    <div class="card" style="background: white; border-color: #e7e5e4;">
+                        <strong style="color: #1c1917;">The Great Gatsby</strong>
+                        <div style="margin-top: 0.5rem; color: #78716c; font-size: 0.875rem;">
+                            <span class="badge" style="background: #dbeafe; color: #1e3a8a;">Hardcover</span>
+                            <span class="badge" style="background: #fef3c7; color: #78350f; margin-left: 0.5rem;">ISBN: 978-1-12345-001-7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="best-for">
+                <div class="best-for-label">Best For</div>
+                <div class="best-for-text">Publishers who want to honor editorial tradition. Warm, approachable but still professional. The deep ink blue feels literary and intentional.</div>
+            </div>
+        </div>
+
+        <!-- Theme 4: Confident Indigo -->
+        <div class="theme-card">
+            <div class="theme-header">
+                <div class="theme-name" style="color: #4f46e5;">4. Confident Indigo</div>
+                <div class="theme-description">Modern enterprise with energy. Indigo-purple conveys innovation and confidence while maintaining professional credibility.</div>
+                <div class="theme-personality" style="border-color: #4f46e5;">
+                    <strong>Personality:</strong> Confident • Modern • Empowering
+                </div>
+            </div>
+
+            <div class="color-palette">
+                <div class="palette-section">
+                    <div class="palette-label">Primary & Secondary</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #4f46e5;">
+                            <div class="swatch-label" style="color: white;">#4f46e5<br/>Primary</div>
+                        </div>
+                        <div class="swatch" style="background: #06b6d4;">
+                            <div class="swatch-label" style="color: white;">#06b6d4<br/>Secondary</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="palette-section">
+                    <div class="palette-label">Semantic Colors</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #14b8a6;">
+                            <div class="swatch-label" style="color: white;">#14b8a6<br/>Success</div>
+                        </div>
+                        <div class="swatch" style="background: #f59e0b;">
+                            <div class="swatch-label" style="color: white;">#f59e0b<br/>Warning</div>
+                        </div>
+                        <div class="swatch" style="background: #ef4444;">
+                            <div class="swatch-label" style="color: white;">#ef4444<br/>Error</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="palette-section">
+                    <div class="palette-label">Neutral Grayscale</div>
+                    <div class="color-swatches">
+                        <div class="swatch" style="background: #fafaf9;">
+                            <div class="swatch-label" style="color: #18181b;">#fafaf9<br/>BG</div>
+                        </div>
+                        <div class="swatch" style="background: #71717a;">
+                            <div class="swatch-label" style="color: white;">#71717a<br/>Muted</div>
+                        </div>
+                        <div class="swatch" style="background: #18181b;">
+                            <div class="swatch-label" style="color: white;">#18181b<br/>Text</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="component-preview">
+                <div class="preview-section">
+                    <div class="preview-label">Buttons</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #4f46e5; color: white;">Primary Action</button>
+                        <button class="btn" style="background: #e0f2fe; color: #075985;">Secondary</button>
+                        <button class="btn" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">Destructive</button>
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Form Inputs</div>
+                    <div class="input-group">
+                        <input class="input" placeholder="Title name..." style="border-color: #d4d4d8; background: white; color: #18181b;">
+                        <input class="input" placeholder="Email address..." value="publisher@example.com" style="border-color: #4f46e5; background: #eef2ff; color: #3730a3;">
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Alerts</div>
+                    <div class="alert" style="background: #eef2ff; border-color: #4f46e5; color: #3730a3;">
+                        ℹ️ ISBN block has 5 remaining. Consider ordering more.
+                    </div>
+                    <div class="alert" style="background: #ccfbf1; border-color: #14b8a6; color: #134e4a; margin-top: 0.5rem;">
+                        ✓ Order shipped successfully with tracking #12345
+                    </div>
+                </div>
+
+                <div class="preview-section">
+                    <div class="preview-label">Cards & Badges</div>
+                    <div class="card" style="background: white; border-color: #e4e4e7;">
+                        <strong style="color: #18181b;">The Great Gatsby</strong>
+                        <div style="margin-top: 0.5rem; color: #71717a; font-size: 0.875rem;">
+                            <span class="badge" style="background: #eef2ff; color: #4338ca;">Hardcover</span>
+                            <span class="badge" style="background: #e0f2fe; color: #075985; margin-left: 0.5rem;">ISBN: 978-1-12345-001-7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="best-for">
+                <div class="best-for-label">Best For</div>
+                <div class="best-for-text">Publishers who want to feel modern and innovative. Indigo = confidence and empowerment. More energetic than traditional blue but still professional.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="comparison">
+        <h2>Side-by-Side Comparison</h2>
+        <div class="comparison-grid">
+            <div class="comparison-item">
+                <h3 style="color: #2563eb;">1. Trust Blue</h3>
+                <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 0.5rem;">Traditional ERP professional</p>
+                <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;">
+                    <div style="width: 40px; height: 40px; background: #2563eb; border-radius: 4px;"></div>
+                    <div style="width: 40px; height: 40px; background: #7c3aed; border-radius: 4px;"></div>
+                    <div style="width: 40px; height: 40px; background: #10b981; border-radius: 4px;"></div>
+                </div>
+                <div style="color: #475569; font-size: 0.8rem;">
+                    ✓ Trustworthy<br/>
+                    ✓ Familiar to ERP users<br/>
+                    ✓ Safe choice
+                </div>
+            </div>
+
+            <div class="comparison-item">
+                <h3 style="color: #0f172a;">2. Modern Slate</h3>
+                <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 0.5rem;">Contemporary minimalist</p>
+                <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;">
+                    <div style="width: 40px; height: 40px; background: #0f172a; border-radius: 4px;"></div>
+                    <div style="width: 40px; height: 40px; background: #64748b; border-radius: 4px;"></div>
+                    <div style="width: 40px; height: 40px; background: #059669; border-radius: 4px;"></div>
+                </div>
+                <div style="color: #475569; font-size: 0.8rem;">
+                    ✓ Sophisticated<br/>
+                    ✓ Content-focused<br/>
+                    ✓ Timeless
+                </div>
+            </div>
+
+            <div class="comparison-item">
+                <h3 style="color: #1e3a8a;">3. Publishing Ink</h3>
+                <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 0.5rem;">Editorial tradition</p>
+                <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;">
+                    <div style="width: 40px; height: 40px; background: #1e3a8a; border-radius: 4px;"></div>
+                    <div style="width: 40px; height: 40px; background: #d97706; border-radius: 4px;"></div>
+                    <div style="width: 40px; height: 40px; background: #047857; border-radius: 4px;"></div>
+                </div>
+                <div style="color: #475569; font-size: 0.8rem;">
+                    ✓ Industry-specific<br/>
+                    ✓ Warm & approachable<br/>
+                    ✓ Literary feel
+                </div>
+            </div>
+
+            <div class="comparison-item">
+                <h3 style="color: #4f46e5;">4. Confident Indigo</h3>
+                <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 0.5rem;">Modern enterprise</p>
+                <div style="display: flex; gap: 0.25rem; margin-bottom: 0.5rem;">
+                    <div style="width: 40px; height: 40px; background: #4f46e5; border-radius: 4px;"></div>
+                    <div style="width: 40px; height: 40px; background: #06b6d4; border-radius: 4px;"></div>
+                    <div style="width: 40px; height: 40px; background: #14b8a6; border-radius: 4px;"></div>
+                </div>
+                <div style="color: #475569; font-size: 0.8rem;">
+                    ✓ Empowering<br/>
+                    ✓ Innovative feel<br/>
+                    ✓ Energetic
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1.5rem; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #0369a1;">
+            <h3 style="color: #0c4a6e; margin-bottom: 0.75rem;">💡 Choosing Your Theme</h3>
+            <p style="color: #334155; margin-bottom: 0.75rem;">
+                All four themes are professional and appropriate for an ERP. Your choice should reflect:
+            </p>
+            <ul style="color: #334155; margin-left: 1.5rem; line-height: 1.8;">
+                <li><strong>Trust Blue:</strong> if you want familiar ERP credibility</li>
+                <li><strong>Modern Slate:</strong> if you want sophisticated minimalism</li>
+                <li><strong>Publishing Ink:</strong> if you want industry-specific warmth</li>
+                <li><strong>Confident Indigo:</strong> if you want to feel empowering and modern</li>
+            </ul>
+            <p style="color: #334155; margin-top: 0.75rem; font-style: italic;">
+                Remember: Your target feeling is "empowered and in control" - which theme makes YOU feel that way?
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Add click handlers to swatches to copy hex codes
+        document.querySelectorAll('.swatch').forEach(swatch => {
+            swatch.addEventListener('click', function() {
+                const label = this.querySelector('.swatch-label');
+                if (label) {
+                    const hexMatch = label.textContent.match(/#[0-9a-fA-F]{6}/);
+                    if (hexMatch) {
+                        navigator.clipboard.writeText(hexMatch[0]).then(() => {
+                            const originalText = label.innerHTML;
+                            label.innerHTML = '✓ Copied!';
+                            setTimeout(() => {
+                                label.innerHTML = originalText;
+                            }, 1500);
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
