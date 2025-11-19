@@ -11,9 +11,9 @@
  */
 
 export * from './base'
+export * from './tenants' // Story 1.3: RLS Infrastructure
 
 // Future schema exports will be added here as stories progress:
-// export * from './tenants' (Story 1.3)
 // export * from './users' (Story 1.4)
 // export * from './isbn-blocks' (Epic 3)
 // export * from './titles' (Epic 4)

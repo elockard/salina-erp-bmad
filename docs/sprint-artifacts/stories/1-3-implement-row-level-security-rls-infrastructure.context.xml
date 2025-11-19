@@ -1,0 +1,324 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.3</storyId>
+    <title>Implement Row-Level Security (RLS) Infrastructure</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-19</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/stories/1-3-implement-row-level-security-rls-infrastructure.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>to implement the Row-Level Security pattern with withTenantContext wrapper</iWant>
+    <soThat>tenant data isolation is enforced at the database level</soThat>
+    <tasks>
+      <task id="1" ac="AC1" estimate="1 hour">
+        <name>Implement withTenantContext() Wrapper</name>
+        <subtasks>
+          <subtask>Create db/tenant-context.ts file</subtask>
+          <subtask>Implement withTenantContext&lt;T&gt;(tenantId: string, callback: () =&gt; Promise&lt;T&gt;) function</subtask>
+          <subtask>Use postgres transaction with SET LOCAL app.current_tenant_id</subtask>
+          <subtask>Add error handling and session cleanup</subtask>
+          <subtask>Export function for use in queries</subtask>
+        </subtasks>
+      </task>
+      <task id="2" ac="AC2" estimate="30 minutes">
+        <name>Define RLS Policy Template</name>
+        <subtasks>
+          <subtask>Document pgPolicy() template in code comments</subtask>
+          <subtask>Create reusable policy configuration</subtask>
+          <subtask>Test policy syntax with tenants table</subtask>
+        </subtasks>
+      </task>
+      <task id="3" ac="AC3" estimate="1 hour">
+        <name>Create Tenants Table Schema with RLS</name>
+        <subtasks>
+          <subtask>Create db/schema/tenants.ts file</subtask>
+          <subtask>Define tenants table with tenantFields mixin</subtask>
+          <subtask>Add tenant-specific fields (name, clerkOrgId, status, settings)</subtask>
+          <subtask>Apply pgPolicy() in table callback</subtask>
+          <subtask>Generate migration with pnpm db:generate</subtask>
+          <subtask>Review generated SQL for RLS policy</subtask>
+          <subtask>Apply migration with pnpm db:migrate</subtask>
+        </subtasks>
+      </task>
+      <task id="4" ac="AC4" estimate="1.5 hours">
+        <name>Write RLS Integration Tests</name>
+        <subtasks>
+          <subtask>Create tests/integration/rls.test.ts file</subtask>
+          <subtask>Set up test fixtures (create 2 test tenants)</subtask>
+          <subtask>Test: withTenantContext returns correct tenant data</subtask>
+          <subtask>Test: withTenantContext blocks other tenant data</subtask>
+          <subtask>Test: Query without tenant context fails appropriately</subtask>
+          <subtask>Test: Multiple sequential withTenantContext calls don't leak data</subtask>
+          <subtask>Run tests and verify 100% pass rate</subtask>
+        </subtasks>
+      </task>
+      <task id="5" ac="AC5" estimate="30 minutes">
+        <name>Document RLS Pattern</name>
+        <subtasks>
+          <subtask>Add comprehensive comments to db/tenant-context.ts</subtask>
+          <subtask>Add usage example to tenants.ts</subtask>
+          <subtask>Update story notes with RLS implementation guidance</subtask>
+          <subtask>Document when RLS is NOT needed (global tables like isbns)</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1">
+      <title>withTenantContext() Wrapper Function</title>
+      <given>the database is configured with Drizzle</given>
+      <when>I create the withTenantContext() wrapper function</when>
+      <then>it sets the app.current_tenant_id session variable before executing queries</then>
+      <validation>
+        <item>Function signature: withTenantContext&lt;T&gt;(tenantId: string, callback: () =&gt; Promise&lt;T&gt;): Promise&lt;T&gt;</item>
+        <item>Uses SET LOCAL app.current_tenant_id = '...' within transaction</item>
+        <item>Returns callback result with proper error handling</item>
+        <item>Session variable is automatically reset after transaction completes</item>
+      </validation>
+    </criterion>
+    <criterion id="AC2">
+      <title>RLS Policy Template Definition</title>
+      <given>Drizzle ORM supports pgPolicy()</given>
+      <when>I define the RLS policy template</when>
+      <then>it uses Drizzle's pgPolicy() with the correct configuration</then>
+      <validation>
+        <item>Template uses pgPolicy('table_name_tenant_isolation', {...})</item>
+        <item>Policy configuration: for: 'all', to: 'authenticated'</item>
+        <item>Using clause: sql`tenant_id = current_setting('app.current_tenant_id')::uuid`</item>
+        <item>Template documented for reuse across all tenant-scoped tables</item>
+      </validation>
+    </criterion>
+    <criterion id="AC3">
+      <title>Tenants Table with RLS</title>
+      <given>the RLS pattern is defined</given>
+      <when>I create the tenants table schema</when>
+      <then>it includes RLS policy for tenant isolation</then>
+      <validation>
+        <item>Table created in db/schema/tenants.ts</item>
+        <item>Includes tenantFields mixin (tenantId, createdAt, updatedAt)</item>
+        <item>Has pgPolicy configured per template</item>
+        <item>Schema fields: id (UUID PK), name, clerkOrgId (unique), status, settings (JSONB)</item>
+        <item>Migration generated with pnpm db:generate</item>
+        <item>Migration applied with pnpm db:migrate</item>
+      </validation>
+    </criterion>
+    <criterion id="AC4">
+      <title>RLS Enforcement Verification</title>
+      <given>the tenants table has RLS enabled</given>
+      <when>I execute test queries with different tenant contexts</when>
+      <then>RLS blocks cross-tenant access</then>
+      <validation>
+        <item>Integration tests in tests/integration/rls.test.ts</item>
+        <item>Test 1: Query with correct tenant_id returns data</item>
+        <item>Test 2: Query with different tenant_id returns empty results</item>
+        <item>Test 3: Query without tenant context throws error</item>
+        <item>Test 4: withTenantContext wrapper correctly isolates data</item>
+      </validation>
+    </criterion>
+    <criterion id="AC5">
+      <title>Pattern Documentation</title>
+      <given>the RLS implementation is complete</given>
+      <when>I document the pattern</when>
+      <then>future developers can replicate it for new tables</then>
+      <validation>
+        <item>Code comments in db/tenant-context.ts explain usage</item>
+        <item>Example usage in tenants.ts shows pgPolicy() implementation</item>
+        <item>README or dev notes explain when/how to apply RLS</item>
+        <item>Clear guidance: all tenant-scoped tables MUST use this pattern</item>
+      </validation>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Tenant Isolation Pattern</title>
+        <section>Lines 1501-1527</section>
+        <snippet>RLS Policy Template using pgPolicy() with session variable pattern app.current_tenant_id. All tenant-scoped tables inherit tenantFields mixin for consistent isolation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture - Database Configuration</title>
+        <section>Lines 229-248</section>
+        <snippet>PostgreSQL 16 with native RLS support, session variables for tenant context, Drizzle ORM with pgPolicy() for type-safe RLS enforcement. pgBouncer connection pooling (100 connections).</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic 1 - Story 1.3</title>
+        <section>Lines 154-179</section>
+        <snippet>Story 1.3 requires withTenantContext wrapper in db/tenant-context.ts, tenants table with RLS policy, integration tests for RLS enforcement. Critical for all future tenant-scoped tables.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/stories/1-2-set-up-postgresql-database-with-drizzle-orm.md</path>
+        <title>Story 1.2 - Database Foundation</title>
+        <section>Completion Notes</section>
+        <snippet>Database client configured at db/index.ts with connection pooling. tenantFields mixin ready at db/schema/base.ts. Migration workflow established. PostgreSQL 16 running on Docker localhost:5432. Ready for Story 1.3 RLS implementation.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>db/schema/base.ts</path>
+        <kind>schema</kind>
+        <symbol>tenantFields</symbol>
+        <lines>41-45</lines>
+        <reason>Base mixin for all tenant-scoped tables. Must be used in tenants table definition for RLS.</reason>
+      </artifact>
+      <artifact>
+        <path>db/index.ts</path>
+        <kind>database-client</kind>
+        <symbol>db</symbol>
+        <lines>29-31</lines>
+        <reason>Drizzle database client instance. Will be used in withTenantContext for transaction management.</reason>
+      </artifact>
+      <artifact>
+        <path>db/index.ts</path>
+        <kind>database-client</kind>
+        <symbol>client</symbol>
+        <lines>12-27</lines>
+        <reason>Postgres connection client with transaction support. Needed for SET LOCAL session variable in withTenantContext.</reason>
+      </artifact>
+      <artifact>
+        <path>tests/integration/database.test.ts</path>
+        <kind>test</kind>
+        <symbol>database integration tests</symbol>
+        <lines>1-251</lines>
+        <reason>Reference pattern for integration tests. Shows Vitest setup, test structure, connection handling. Model for RLS tests.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package name="drizzle-orm" version="0.44.7">Type-safe ORM with pgPolicy() support for RLS</package>
+        <package name="postgres" version="3.4.7">PostgreSQL client with transaction API</package>
+        <package name="vitest" version="4.0.10">Testing framework for integration tests</package>
+        <package name="drizzle-kit" version="0.31.7">Migration generator and CLI tools</package>
+        <package name="next" version="16.0.3">Next.js framework (project context)</package>
+        <package name="typescript" version="5.9.3">TypeScript for type safety</package>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint>
+      <category>Architecture Pattern</category>
+      <rule>All tenant-scoped tables MUST use tenantFields mixin from db/schema/base.ts</rule>
+    </constraint>
+    <constraint>
+      <category>Architecture Pattern</category>
+      <rule>All tenant-scoped tables MUST define pgPolicy() with tenant_isolation naming convention</rule>
+    </constraint>
+    <constraint>
+      <category>Security</category>
+      <rule>Session variable app.current_tenant_id MUST be set before any tenant-scoped query</rule>
+    </constraint>
+    <constraint>
+      <category>Security</category>
+      <rule>withTenantContext wrapper MUST use transaction-scoped SET LOCAL (not session-level SET)</rule>
+    </constraint>
+    <constraint>
+      <category>Testing</category>
+      <rule>RLS tests MUST verify both positive (correct tenant sees data) and negative (wrong tenant sees nothing) cases</rule>
+    </constraint>
+    <constraint>
+      <category>Testing</category>
+      <rule>Use Vitest framework following patterns from tests/integration/database.test.ts</rule>
+    </constraint>
+    <constraint>
+      <category>Database</category>
+      <rule>Use Docker PostgreSQL on localhost:5432 (avoid system postgres conflicts)</rule>
+    </constraint>
+    <constraint>
+      <category>Migration</category>
+      <rule>Follow workflow: pnpm db:generate → review SQL → pnpm db:migrate</rule>
+    </constraint>
+    <constraint>
+      <category>Code Style</category>
+      <rule>All database schema files must have comprehensive JSDoc comments</rule>
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>withTenantContext</name>
+      <kind>function</kind>
+      <signature>async function withTenantContext&lt;T&gt;(tenantId: string, callback: () =&gt; Promise&lt;T&gt;): Promise&lt;T&gt;</signature>
+      <path>db/tenant-context.ts (to be created)</path>
+      <description>Wrapper function that sets tenant context and executes callback within transaction. Returns callback result with proper error handling.</description>
+    </interface>
+    <interface>
+      <name>tenantFields</name>
+      <kind>schema-mixin</kind>
+      <signature>{ tenantId: UUID, createdAt: Timestamp, updatedAt: Timestamp }</signature>
+      <path>db/schema/base.ts:41-45</path>
+      <description>Reusable mixin for all tenant-scoped tables. Provides consistent field definitions.</description>
+    </interface>
+    <interface>
+      <name>db (Drizzle client)</name>
+      <kind>database-client</kind>
+      <signature>const db: DrizzlePostgresJsDatabase</signature>
+      <path>db/index.ts:29-31</path>
+      <description>Drizzle ORM client instance. Provides transaction() method for session variable scoping.</description>
+    </interface>
+    <interface>
+      <name>pgPolicy()</name>
+      <kind>drizzle-function</kind>
+      <signature>pgPolicy(name: string, config: { for: string, to: string, using: SQL })</signature>
+      <path>drizzle-orm/pg-core</path>
+      <description>Drizzle function for defining RLS policies in table definitions. Used in table callback.</description>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing framework: Vitest 4.0.10. Integration tests in tests/integration/ directory.
+      Test pattern: Use explicit connection config (host, port, database, username, password) to avoid system postgres conflicts.
+      Test structure: describe blocks for features, it blocks for specific scenarios, expect assertions for validation.
+      Setup/teardown: Use beforeAll for fixtures, afterAll for cleanup.
+      Database tests: Create temp tables or dedicated test data, clean up after tests.
+      RLS-specific: Must test positive (data returned), negative (data blocked), and error (missing context) cases.
+    </standards>
+    <locations>
+      <location>tests/integration/rls.test.ts (to be created)</location>
+      <location>tests/integration/database.test.ts (reference example)</location>
+    </locations>
+    <ideas>
+      <test ac="AC1">
+        <name>withTenantContext sets session variable correctly</name>
+        <approach>Call withTenantContext with test tenant ID, query current_setting inside callback, verify it matches</approach>
+      </test>
+      <test ac="AC1">
+        <name>withTenantContext clears session variable after completion</name>
+        <approach>Execute withTenantContext, then query current_setting outside callback, verify it's empty/reset</approach>
+      </test>
+      <test ac="AC1">
+        <name>withTenantContext handles errors and cleans up</name>
+        <approach>Throw error in callback, catch it, verify session variable is still cleared</approach>
+      </test>
+      <test ac="AC3">
+        <name>Tenants table schema matches specification</name>
+        <approach>Query information_schema for tenants table, verify columns: id, tenant_id, name, clerk_org_id, status, settings, created_at, updated_at</approach>
+      </test>
+      <test ac="AC4">
+        <name>RLS blocks access to different tenant's data</name>
+        <approach>Create 2 test tenants, query tenant 1 data within tenant 2 context, expect empty results</approach>
+      </test>
+      <test ac="AC4">
+        <name>RLS allows access to same tenant's data</name>
+        <approach>Create test tenant, query within same tenant context, expect data returned</approach>
+      </test>
+      <test ac="AC4">
+        <name>RLS prevents queries without tenant context</name>
+        <approach>Try to query tenants table without withTenantContext wrapper, expect error or empty results</approach>
+      </test>
+      <test ac="AC4">
+        <name>Sequential contexts don't leak data</name>
+        <approach>Execute withTenantContext for tenant 1, then tenant 2, verify each sees only their data</approach>
+      </test>
+    </ideas>
+  </tests>
+</story-context>
