@@ -71,7 +71,7 @@ import { sql } from 'drizzle-orm'
  */
 export async function withTenantContext<T>(
   tenantId: string,
-  callback: (tx: typeof db) => Promise<T>
+  callback: (tx: Parameters<Parameters<typeof db.transaction>[0]>[0]) => Promise<T>
 ): Promise<T> {
   // Validation: Ensure tenantId is provided
   if (!tenantId || typeof tenantId !== 'string') {
@@ -142,7 +142,8 @@ export async function getTenantContext(): Promise<string | null> {
     )
 
     // If setting not found, current_setting returns empty string
-    const setting = result.rows[0]?.current_setting
+    // Drizzle execute returns an array directly, not a {rows: []} object
+    const setting = result[0]?.current_setting
     return setting && setting !== '' ? setting : null
   } catch {
     // If app.current_tenant_id is not set, return null

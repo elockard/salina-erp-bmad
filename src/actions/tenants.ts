@@ -74,7 +74,7 @@ export async function initializeFeatureFlags(
   tenantId: string,
   tier: SubscriptionTier
 ): Promise<void> {
-  logger.info('Initializing feature flags', { tenantId, tier })
+  logger.info({ tenantId, tier }, 'Initializing feature flags')
 
   try {
     const features = TIER_LIMITS[tier]
@@ -94,17 +94,17 @@ export async function initializeFeatureFlags(
       }
     })
 
-    logger.info('Feature flags initialized successfully', {
+    logger.info({
       tenantId,
       tier,
       featureCount: features.length,
-    })
+    }, 'Feature flags initialized successfully')
   } catch (error) {
-    logger.error('Failed to initialize feature flags', {
+    logger.error({
       error,
       tenantId,
       tier,
-    })
+    }, 'Failed to initialize feature flags')
     throw error
   }
 }
@@ -183,17 +183,17 @@ export async function updateTenantBranding(
         .where(eq(tenants.id, tenant.id))
     })
 
-    logger.info('Tenant branding updated', { tenantId: orgId, userId })
+    logger.info({ tenantId: orgId, userId }, 'Tenant branding updated')
 
     revalidatePath('/settings/company')
 
     return { success: true }
   } catch (error) {
-    logger.error('Failed to update tenant branding', {
+    logger.error({
       error,
       tenantId: orgId,
       userId,
-    })
+    }, 'Failed to update tenant branding')
 
     return {
       success: false,
@@ -271,17 +271,17 @@ export async function updateTenantLocale(
         .where(eq(tenants.id, tenant.id))
     })
 
-    logger.info('Tenant locale updated', { tenantId: orgId, userId })
+    logger.info({ tenantId: orgId, userId }, 'Tenant locale updated')
 
     revalidatePath('/settings/company')
 
     return { success: true }
   } catch (error) {
-    logger.error('Failed to update tenant locale', {
+    logger.error({
       error,
       tenantId: orgId,
       userId,
-    })
+    }, 'Failed to update tenant locale')
 
     return {
       success: false,

@@ -1,6 +1,6 @@
 # Story 1.5: Build Tenant Provisioning Workflow
 
-Status: review
+Status: done
 
 ## Story
 
@@ -671,3 +671,8 @@ Implementation proceeded systematically through all 9 tasks.
 - tests/integration/tenant-provisioning.test.ts (NEW - Task 8)
 - docs/clerk-configuration-guide.md (MODIFIED - Task 9)
 - package.json (MODIFIED - added pino, pino-pretty, zod, react-hook-form, @hookform/resolvers, sonner)
+
+### Completion Notes
+
+**Completed:** 2025-11-19
+**Definition of Done:** All acceptance criteria met, code reviewed, tests passing (6/6 integration tests), webhook tested live with successful tenant creation

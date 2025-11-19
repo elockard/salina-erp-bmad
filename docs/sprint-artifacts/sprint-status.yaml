@@ -41,8 +41,8 @@ development_status:
   1-2-set-up-postgresql-database-with-drizzle-orm: done
   1-3-implement-row-level-security-rls-infrastructure: done
   1-4-integrate-clerk-authentication: done
-  1-5-build-tenant-provisioning-workflow: review
-  1-6-set-up-deployment-infrastructure: backlog
+  1-5-build-tenant-provisioning-workflow: done
+  1-6-set-up-deployment-infrastructure: in-progress
   epic-1-retrospective: optional
 
   # Epic 2: User & Access Management (4 stories)

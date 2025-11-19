@@ -188,11 +188,11 @@ async function handleUserCreated(data: any) {
 async function handleOrganizationCreated(data: any) {
   const { id: orgId, name } = data
 
-  logger.info('organization.created webhook received', {
+  logger.info({
     orgId,
     name,
     createdBy: data.created_by,
-  })
+  }, 'organization.created webhook received')
 
   try {
     // Check if tenant already exists (idempotency check)
@@ -203,10 +203,10 @@ async function handleOrganizationCreated(data: any) {
       .limit(1)
 
     if (existingTenant.length > 0) {
-      logger.warn('Tenant already exists for organization', {
+      logger.warn({
         orgId,
         tenantId: existingTenant[0].id,
-      })
+      }, 'Tenant already exists for organization')
       return // Idempotent - webhook may fire twice
     }
 
@@ -242,20 +242,20 @@ async function handleOrganizationCreated(data: any) {
       })
     })
 
-    logger.info('Tenant provisioned successfully', {
+    logger.info({
       tenantId,
       orgId,
       name,
-    })
+    }, 'Tenant provisioned successfully')
 
     // Initialize feature flags for Starter tier (default)
     await initializeFeatureFlags(tenantId, 'starter')
   } catch (error) {
-    logger.error('Failed to provision tenant', {
+    logger.error({
       error,
       orgId,
       name,
-    })
+    }, 'Failed to provision tenant')
     throw error
   }
 }

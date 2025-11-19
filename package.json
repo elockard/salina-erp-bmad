@@ -24,6 +24,7 @@
   "dependencies": {
     "@clerk/nextjs": "6.35.2",
     "@hookform/resolvers": "5.2.2",
+    "@sentry/nextjs": "10.25.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "drizzle-orm": "0.44.7",
@@ -56,6 +57,7 @@
     "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "0.7.1",
     "tailwindcss": "4.1.17",
+    "tap": "21.1.5",
     "typescript": "5.9.3",
     "vitest": "4.0.10"
   }

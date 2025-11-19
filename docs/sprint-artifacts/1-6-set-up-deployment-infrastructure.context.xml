@@ -1,0 +1,265 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1.6</storyId>
+    <title>Set Up Deployment Infrastructure</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-11-19</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-6-set-up-deployment-infrastructure.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>development team</asA>
+    <iWant>to create production-ready deployment infrastructure with Docker and automated backups</iWant>
+    <soThat>the Salina ERP application can be deployed to production with confidence and data safety</soThat>
+    <tasks>
+      - Task 1: Create multi-stage Dockerfile for production (AC: #1)
+      - Task 2: Create docker-compose.yml for local development (AC: #2)
+      - Task 3: Document environment variables in .env.example (AC: #3)
+      - Task 4: Deploy to Railway/Fly.io/Render (AC: #4)
+      - Task 5: Configure automated database backups (AC: #5, #6)
+      - Task 6: Integrate Sentry for error tracking (AC: #7)
+      - Task 7: Create health check endpoint (AC: #8)
+      - Task 8: Create deployment documentation (AC: All)
+      - Task 9: Run deployment smoke tests (AC: All)
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    1. Given the application is functional locally, when I create a multi-stage Dockerfile, then the Docker image builds successfully and runs the application
+    2. And docker-compose.yml includes postgres, redis, and app services for local development
+    3. And environment variables are documented in .env.example
+    4. And the application is deployed to Railway/Fly.io/Render (not Vercel due to timeout limits)
+    5. And automated daily backups are configured for PostgreSQL with 30-day retention
+    6. And point-in-time recovery is enabled for the production database
+    7. And Sentry error tracking is integrated for production monitoring
+    8. And a health check endpoint returns database connectivity status
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-1.md</path>
+        <title>Epic Technical Specification: Foundation &amp; Multi-Tenant Setup</title>
+        <section>Story 1.6: Set Up Deployment</section>
+        <snippet>Multi-stage Dockerfile for production builds, docker-compose.yml for local development (Postgres, Redis, app), Environment variable configuration (.env.example), Deploy to Railway/Fly.io/Render (NOT Vercel - timeout limits for long-running jobs), Automated daily backups with 30-day point-in-time recovery</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Deployment Architecture</section>
+        <snippet>Docker multi-stage build for optimized production images. Railway/Fly.io/Render deployment (NOT Vercel due to timeout limits). PostgreSQL with pgBouncer connection pooling (100 connections). Automated backups with 30-day point-in-time recovery.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Decision Summary</section>
+        <snippet>Deployment: Docker (Railway/Fly.io/Render) - Self-hosted, long-running processes, no timeout limits. Monitoring: Sentry + Pino - Error tracking, structured logging, query logs (dev)</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Initialization</section>
+        <snippet>Next.js 15 with App Router, TypeScript 5, Tailwind CSS 4. Manual additions: shadcn/ui, Drizzle ORM, Clerk, Hono, PostgreSQL with multi-tenant schema setup.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/1-5-build-tenant-provisioning-workflow.md</path>
+        <title>Story 1.5: Build Tenant Provisioning Workflow</title>
+        <section>Learnings from Previous Story</section>
+        <snippet>Pino logger initialized at src/lib/logger.ts. Webhook infrastructure fully tested with ngrok - deployment must expose webhook endpoint. Migration required for tenant_features table before deployment.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>package.json</path>
+        <kind>manifest</kind>
+        <symbol>dependencies</symbol>
+        <lines>24-42</lines>
+        <reason>Contains all production dependencies that must be installed in Docker image: Next.js, Clerk, Drizzle ORM, Pino logger, etc.</reason>
+      </artifact>
+      <artifact>
+        <path>docker-compose.yml</path>
+        <kind>config</kind>
+        <symbol>services</symbol>
+        <lines>1-41</lines>
+        <reason>Existing docker-compose configuration with postgres and redis services. Story should add app service definition.</reason>
+      </artifact>
+      <artifact>
+        <path>next.config.ts</path>
+        <kind>config</kind>
+        <symbol>nextConfig</symbol>
+        <lines>1-7</lines>
+        <reason>Next.js configuration file. Story must add output: 'standalone' for Docker optimization.</reason>
+      </artifact>
+      <artifact>
+        <path>db/index.ts</path>
+        <kind>database</kind>
+        <symbol>db</symbol>
+        <lines>all</lines>
+        <reason>Database client connection that health check endpoint will use to verify connectivity</reason>
+      </artifact>
+      <artifact>
+        <path>db/tenant-context.ts</path>
+        <kind>database</kind>
+        <symbol>withTenantContext</symbol>
+        <lines>all</lines>
+        <reason>WARNING: Health check should NOT use withTenantContext (no tenant in healthcheck context)</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/logger.ts</path>
+        <kind>utility</kind>
+        <symbol>logger</symbol>
+        <lines>all</lines>
+        <reason>Pino logger created in Story 1.5, use for all deployment-related logging</reason>
+      </artifact>
+      <artifact>
+        <path>src/app/api/webhooks/clerk/route.ts</path>
+        <kind>api</kind>
+        <symbol>POST</symbol>
+        <lines>all</lines>
+        <reason>Webhook endpoint must be publicly accessible in production deployment</reason>
+      </artifact>
+      <artifact>
+        <path>db/schema/tenant-features.ts</path>
+        <kind>schema</kind>
+        <symbol>tenantFeatures</symbol>
+        <lines>all</lines>
+        <reason>CRITICAL: New table created in Story 1.5 requires migration before deployment</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <runtime>
+          <package name="next" version="16.0.3" />
+          <package name="react" version="19.2.0" />
+          <package name="react-dom" version="19.2.0" />
+          <package name="@clerk/nextjs" version="6.35.2" />
+          <package name="drizzle-orm" version="0.44.7" />
+          <package name="postgres" version="3.4.7" />
+          <package name="pino" version="10.1.0" />
+          <package name="pino-pretty" version="13.1.2" />
+          <package name="zod" version="4.1.12" />
+        </runtime>
+        <devtime>
+          <package name="drizzle-kit" version="0.31.7" />
+          <package name="typescript" version="5.9.3" />
+          <package name="vitest" version="4.0.10" />
+          <package name="@vitest/ui" version="4.0.10" />
+        </devtime>
+        <toAdd>
+          <package name="@sentry/nextjs" version="10.25.0" note="Must be added for error tracking (AC #7)" />
+        </toAdd>
+      </node>
+      <external>
+        <service name="PostgreSQL" version="16" deployment="Railway/Fly.io/Render managed database" />
+        <service name="Redis" version="7" deployment="Railway/Fly.io/Render managed Redis" />
+        <service name="Sentry" plan="Developer" purpose="Error tracking and performance monitoring" />
+        <service name="Clerk" plan="Standard" purpose="Authentication (webhook endpoint must be accessible)" />
+      </external>
+      <docker>
+        <baseImage>node:20-alpine</baseImage>
+        <targetSize>&lt;500MB</targetSize>
+        <stages>3 (deps, builder, runner)</stages>
+      </docker>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - CRITICAL: Migrations MUST run before application starts (add migration step to Dockerfile CMD or use platform pre-deploy hooks)
+    - Webhook endpoint POST /api/webhooks/clerk must be publicly accessible (configure CLERK_WEBHOOK_SECRET in production)
+    - Connection pooling essential (use pgBouncer or platform-managed pooling with 100 connections)
+    - Environment variables must be set in platform dashboard (DATABASE_URL, CLERK keys, SENTRY_DSN)
+    - Health check should NOT use withTenantContext (no tenant in healthcheck context)
+    - Backup restoration requires downtime (schedule monthly maintenance window for verification)
+    - Tests should NOT be in production image (exclude via .dockerignore)
+    - Run as non-root user in Docker (nextjs:nodejs user)
+    - Docker multi-stage build to minimize attack surface
+    - HTTPS only in production (enforced by platform)
+    - Next.js config must add output: 'standalone' for Docker optimization
+    - All file paths in context must be project-relative (not absolute)
+    - NOT Vercel deployment due to 10-second timeout limit (breaks future long-running Inngest jobs)
+    - Platform selection: Railway (recommended for simplicity), Fly.io (more control), or Render (good alternative)
+    - pgBouncer connection timeout: 30 seconds, idle timeout: 5 minutes
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>Health Check Endpoint</name>
+      <kind>REST endpoint</kind>
+      <signature>GET /api/health → { status: 'healthy'|'unhealthy', timestamp: ISO8601, services: { database: { status: 'up'|'down', responseTime?: number, error?: string } } }</signature>
+      <path>src/app/api/health/route.ts (NEW - to be created)</path>
+    </interface>
+    <interface>
+      <name>Database Client</name>
+      <kind>Database connection</kind>
+      <signature>db.execute(sql`SELECT 1`) → Promise&lt;void&gt;</signature>
+      <path>db/index.ts</path>
+    </interface>
+    <interface>
+      <name>Logger</name>
+      <kind>Logging utility</kind>
+      <signature>logger.info(message, context) / logger.error(message, context)</signature>
+      <path>src/lib/logger.ts</path>
+    </interface>
+    <interface>
+      <name>Sentry Error Tracking</name>
+      <kind>Monitoring integration</kind>
+      <signature>Sentry.captureException(error, context) / Sentry.setContext(name, context)</signature>
+      <path>sentry.client.config.ts / sentry.server.config.ts (NEW - to be created)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      From Epic 1 Tech Spec: Use Vitest for unit and integration tests, Playwright for E2E deployment smoke tests. Focus on integration tests for deployment infrastructure. Test coverage target: 80% overall. Story 1.6 specific: E2E deployment smoke test verifies app is accessible, health check returns correct status, database connection stable.
+    </standards>
+    <locations>
+      - tests/integration/ - Integration tests for health check endpoint
+      - tests/e2e/ - Playwright deployment smoke tests
+      - .dockerignore - Exclude tests/ from production Docker image
+    </locations>
+    <ideas>
+      <test ac="1">
+        <description>Test Dockerfile builds successfully</description>
+        <approach>Manual: docker build -t salina-erp . (target: &lt;5 minutes build time)</approach>
+      </test>
+      <test ac="1">
+        <description>Test Docker container runs and serves application</description>
+        <approach>Manual: docker run -p 3000:3000 salina-erp, verify accessible at localhost:3000</approach>
+      </test>
+      <test ac="2">
+        <description>Test docker-compose starts all services</description>
+        <approach>Manual: docker-compose up -d, verify all services healthy</approach>
+      </test>
+      <test ac="2">
+        <description>Test application connects to postgres and redis</description>
+        <approach>Integration test: Start services, run migrations, verify database queries work</approach>
+      </test>
+      <test ac="4">
+        <description>Test production deployment accessible via HTTPS</description>
+        <approach>E2E: Deploy to platform, verify app URL returns 200, SSL certificate valid</approach>
+      </test>
+      <test ac="5,6">
+        <description>Test backup created successfully</description>
+        <approach>Manual: Trigger backup via platform dashboard, verify backup exists</approach>
+      </test>
+      <test ac="5,6">
+        <description>Test backup restoration to staging</description>
+        <approach>Manual: Restore backup to staging environment, verify data integrity</approach>
+      </test>
+      <test ac="7">
+        <description>Test Sentry captures errors</description>
+        <approach>Integration: Trigger test error, verify appears in Sentry dashboard with correct context (tenantId)</approach>
+      </test>
+      <test ac="8">
+        <description>Test health check returns 200 when database healthy</description>
+        <approach>Integration: Start app with healthy database, GET /api/health, assert status 200 and services.database.status='up'</approach>
+      </test>
+      <test ac="8">
+        <description>Test health check returns 503 when database down</description>
+        <approach>Integration: Stop database, GET /api/health, assert status 503 and services.database.status='down'</approach>
+      </test>
+    </ideas>
+  </tests>
+</story-context>
