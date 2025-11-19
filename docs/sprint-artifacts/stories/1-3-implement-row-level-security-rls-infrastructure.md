@@ -2,7 +2,7 @@
 
 **Story ID:** 1-3-implement-row-level-security-rls-infrastructure
 **Epic:** Epic 1 - Foundation & Multi-Tenant Setup
-**Status:** ready-for-dev
+**Status:** done
 **Priority:** High (Critical for multi-tenant isolation)
 **Estimated Effort:** 3-5 hours
 
@@ -259,7 +259,7 @@ RLS tests must verify:
 - [x] All integration tests pass locally (37/37 passing)
 - [x] Code follows project style and architecture patterns
 - [x] No linting errors or TypeScript warnings
-- [ ] Git commit with clear message referencing Story 1.3
+- [x] Git commit with clear message referencing Story 1.3
 
 ---
 
@@ -321,3 +321,21 @@ Even if application code has a bug, RLS prevents cross-tenant data leakage.
 **Story Created:** 2025-11-19
 **Last Updated:** 2025-11-19
 **Author:** Bob (Scrum Master - SM Agent)
+
+---
+
+## Dev Agent Record
+
+### Completion Notes
+**Completed:** 2025-11-19
+**Definition of Done:** All acceptance criteria met, code reviewed, tests passing (37/37)
+
+**Implementation Summary:**
+- Created `db/tenant-context.ts` with `withTenantContext()` wrapper using set_config()
+- Created `db/schema/tenants.ts` with RLS policy using pgPolicy()
+- Generated and applied 3 migrations (0000, 0001, 0002) with RLS policy refinements
+- Implemented 18 RLS integration tests verifying cross-tenant isolation
+- RLS policy handles empty tenant context gracefully (returns 0 rows)
+- SET LOCAL ROLE authenticated within transactions for proper RLS enforcement
+
+**Git Commit:** 35a7a21 - Implement Row-Level Security (RLS) infrastructure for multi-tenant isolation
