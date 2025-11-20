@@ -14,7 +14,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { db } from '../../../../../db'
-import { withTenantContext } from '../../../../../db/tenant-context'
+import { withTenantContext, getTenantIdFromClerkOrgId } from '../../../../../db/tenant-context'
 import { tenants } from '../../../../../db/schema'
 import { eq } from 'drizzle-orm'
 import { CompanySettingsForm } from '@/components/settings/CompanySettingsForm'
@@ -32,12 +32,25 @@ export default async function CompanySettingsPage() {
     redirect('/sign-in')
   }
 
+  // Map Clerk orgId to tenant UUID
+  const tenantId = await getTenantIdFromClerkOrgId(orgId)
+
+  if (!tenantId) {
+    return (
+      <div className="rounded-md border border-destructive bg-destructive/10 p-4">
+        <p className="text-sm font-medium text-destructive">
+          Tenant not found for organization. Please contact support.
+        </p>
+      </div>
+    )
+  }
+
   // Fetch tenant record using RLS
-  const tenant = await withTenantContext(orgId, async (tx) => {
+  const tenant = await withTenantContext(tenantId, async (tx) => {
     const [result] = await tx
       .select()
       .from(tenants)
-      .where(eq(tenants.clerkOrgId, orgId))
+      .where(eq(tenants.id, tenantId))
       .limit(1)
 
     return result

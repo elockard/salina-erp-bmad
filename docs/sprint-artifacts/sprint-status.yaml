@@ -42,12 +42,12 @@ development_status:
   1-3-implement-row-level-security-rls-infrastructure: done
   1-4-integrate-clerk-authentication: done
   1-5-build-tenant-provisioning-workflow: done
-  1-6-set-up-deployment-infrastructure: in-progress
+  1-6-set-up-deployment-infrastructure: done
   epic-1-retrospective: optional
 
   # Epic 2: User & Access Management (4 stories)
   epic-2: backlog
-  2-1-build-user-invitation-system: backlog
+  2-1-build-user-invitation-system: done
   2-2-implement-role-based-permission-system: backlog
   2-3-build-user-management-interface: backlog
   2-4-implement-audit-trail-system: backlog

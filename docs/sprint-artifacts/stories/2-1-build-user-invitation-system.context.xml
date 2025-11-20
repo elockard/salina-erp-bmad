@@ -1,0 +1,227 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>1</storyId>
+    <title>Build User Invitation System</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-20</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-1-build-user-invitation-system.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>Publisher/Owner</asA>
+    <iWant>to invite team members via email with assigned roles</iWant>
+    <soThat>my staff can access the system with appropriate permissions</soThat>
+    <tasks>
+- Task 1: Create user database schema (AC: #6)
+  - Subtask 1.1: Create `db/schema/users.ts` with users table synced from Clerk
+  - Subtask 1.2: Define user fields: id (Clerk userId), tenantId, email, name, role, status (active/inactive), lastLogin, createdAt, updatedAt
+  - Subtask 1.3: Add RLS policy for users table (tenant isolation)
+  - Subtask 1.4: Export users schema from `db/schema/index.ts`
+  - Subtask 1.5: Generate Drizzle migration: `pnpm db:generate`
+  - Subtask 1.6: Run migration: `pnpm db:migrate`
+
+- Task 2: Create user invitation page UI (AC: #1)
+  - Subtask 2.1: Create `app/(dashboard)/settings/users/page.tsx` (Server Component)
+  - Subtask 2.2: Build InviteUserDialog component in `components/users/InviteUserDialog.tsx` (Client Component)
+  - Subtask 2.3: Add "Invite User" button that opens dialog
+  - Subtask 2.4: Create form with email input (validated) and role select dropdown
+  - Subtask 2.5: Use shadcn/ui Dialog, Input, Select, and Button components
+  - Subtask 2.6: Add Zod validation schema for invite form in `validators/user.ts`
+  - Subtask 2.7: Integrate React Hook Form with zodResolver for client-side validation
+  - Subtask 2.8: Display 8 role options with descriptions
+
+- Task 3: Create user invitation Server Action (AC: #2, #5)
+  - Subtask 3.1: Create `src/actions/users.ts` with `inviteUser(email, role)` Server Action
+  - Subtask 3.2: Validate input with Zod schema from `validators/user.ts`
+  - Subtask 3.3: Check auth with `auth()` from Clerk - verify user has Publisher/Owner role
+  - Subtask 3.4: Use Clerk Organizations API to send invitation with assigned role
+  - Subtask 3.5: Store pending invitation in database (users table with status: 'pending')
+  - Subtask 3.6: Return success/error response with proper error handling
+  - Subtask 3.7: Log invitation event with Pino logger (tenantId, email, role, invitedBy)
+  - Subtask 3.8: Never log sensitive data (no password fields)
+
+- Task 4: Create email notification Inngest job (AC: #2, #3)
+  - Subtask 4.1: Create `inngest/functions/email-notifications.ts` file
+  - Subtask 4.2: Define Inngest function listening to `user/invitation.sent` event
+  - Subtask 4.3: Create email template with tenant branding (logo, name) from tenant settings (FR3)
+  - Subtask 4.4: Include activation link from Clerk invitation response
+  - Subtask 4.5: Send email using Inngest email step (or configure SMTP provider)
+  - Subtask 4.6: Log email send status (success/failure) with Pino
+  - Subtask 4.7: Configure retry logic (3 attempts with exponential backoff)
+  - Subtask 4.8: Send failure event if email fails after retries
+
+- Task 5: Handle Clerk invitation acceptance webhook (AC: #4, #5)
+  - Subtask 5.1: Update `src/app/api/webhooks/clerk/route.ts` to handle `organization.membership.created` event
+  - Subtask 5.2: Verify webhook signature (already implemented in Story 1.5)
+  - Subtask 5.3: Extract userId, orgId, role from webhook payload
+  - Subtask 5.4: Update users table: change status from 'pending' to 'active', set lastLogin to now
+  - Subtask 5.5: Use `withTenantContext()` to ensure RLS isolation
+  - Subtask 5.6: Log user activation with Pino (tenantId, userId, email, role)
+  - Subtask 5.7: Return 200 OK to Clerk
+
+- Task 6: Create user list view (AC: #6)
+  - Subtask 6.1: Update `app/(dashboard)/settings/users/page.tsx` to fetch users from database
+  - Subtask 6.2: Use Server Component pattern to fetch users with `withTenantContext()`
+  - Subtask 6.3: Display users table with columns: Name, Email, Role, Status, Last Login
+  - Subtask 6.4: Use shadcn/ui Table component for user list
+  - Subtask 6.5: Show status badge (Active/Pending/Inactive) with color coding
+  - Subtask 6.6: Display role with human-readable label
+  - Subtask 6.7: Format Last Login timestamp
+
+- Task 7: Add permission check for invite capability (AC: #1)
+  - Subtask 7.1: Create permission helper in `lib/permissions.ts`: `canInviteUsers(role): boolean`
+  - Subtask 7.2: Only Publisher/Owner can invite users
+  - Subtask 7.3: Check permission in Server Action before sending invitation
+  - Subtask 7.4: Throw AppError with FORBIDDEN code if permission denied
+  - Subtask 7.5: Hide "Invite User" button in UI for non-owners using permission check
+
+- Task 8: Write integration tests (AC: All)
+  - Subtask 8.1: Create `tests/integration/users.test.ts`
+  - Subtask 8.2: Test: inviteUser() creates pending user record
+  - Subtask 8.3: Test: inviteUser() sends Inngest event
+  - Subtask 8.4: Test: webhook handler activates pending user
+  - Subtask 8.5: Test: non-owner cannot invoke inviteUser() (permission denied)
+  - Subtask 8.6: Test: invalid email format rejected by Zod validation
+  - Subtask 8.7: Test: invalid role rejected by Zod validation
+  - Subtask 8.8: Use test database with RLS enabled to verify tenant isolation
+
+- Task 9: Add to Environment Variables (AC: #2, #3)
+  - Subtask 9.1: Update `.env.example` with email provider credentials (if using SMTP)
+  - Subtask 9.2: Document INNGEST_EVENT_KEY for event publishing
+  - Subtask 9.3: Document CLERK_SECRET_KEY for Organizations API (already present)
+  - Subtask 9.4: Add comments explaining email configuration
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+1. Given I am logged in as Publisher/Owner, When I navigate to Settings > Users and click "Invite User", Then I can enter an email address and select one of the 8 roles (publisher_owner, managing_editor, production_staff, sales_marketing, warehouse_operations, accounting, author, illustrator)
+
+2. And the system sends an email invitation with an account activation link
+
+3. And the invited user receives the email within 2 minutes
+
+4. And the user can click the link, be redirected to Clerk sign-up, and complete their profile
+
+5. And upon completing sign-up, the user is automatically added to the tenant organization with the assigned role
+
+6. And the user appears in the Settings > Users list with their role displayed
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/prd.md" title="Product Requirements Document" section="User Management & Access Control (FR10-17)" snippet="FR10: Publisher/Owner can invite users via email with role assignment. FR11: Invited users receive email with account activation link. FR12: Users can accept invitation and complete profile setup. 8 user roles defined: Publisher/Owner, Managing Editor, Production Staff, Sales & Marketing, Warehouse/Operations, Accounting, Author, Illustrator." />
+
+      <doc path="docs/prd.md" title="Product Requirements Document" section="Permissions & Roles (Lines 230-292)" snippet="Built-in role definitions with detailed permissions for each of 8 roles. Publisher/Owner has full access, Managing Editor can manage titles and contributors (no financials), Production Staff accesses production tasks, Sales & Marketing manages customers/orders (no costs), Warehouse manages inventory, Accounting manages financials, Authors/Illustrators view own data only." />
+
+      <doc path="docs/architecture.md" title="Architecture Document" section="Server Action Pattern (Lines 870-948)" snippet="All mutations use Server Actions (not API routes). Pattern: 1) Authentication check with auth(), 2) Zod validation, 3) Business logic with withTenantContext(), 4) Structured logging with Pino, 5) Cache invalidation with revalidatePath(), 6) Return {success: true, data} | {success: false, error, message}" />
+
+      <doc path="docs/architecture.md" title="Architecture Document" section="Clerk Authentication (Lines 276-298)" snippet="Clerk Organizations map 1:1 with tenants. Custom roles stored in Clerk metadata: user.publicMetadata.roles. 8 custom roles defined. Middleware pattern sets tenant context from orgId. User invitation uses Clerk Organizations API." />
+
+      <doc path="docs/architecture.md" title="Architecture Document" section="Inngest Event Pattern (Lines 346-363)" snippet="Email notifications sent via Inngest background jobs for reliability. If email fails, Inngest retries automatically (3 attempts with exponential backoff). After retries exhausted, failure event sent for manual intervention." />
+
+      <doc path="docs/architecture.md" title="Architecture Document" section="Authorization RBAC (Lines 1729-1765)" snippet="8 Roles with field-level permissions table. Permission functions in lib/permissions.ts (canEditTitle, canSeeCosts, etc.). Server Actions check permissions before executing (throw FORBIDDEN if denied)." />
+
+      <doc path="docs/epics.md" title="Epics Document" section="Epic 2: User & Access Management (Lines 270-369)" snippet="Story 2.1 kicks off Epic 2 by implementing user invitation system. Enables Publisher/Owner to invite team members via email and assign to one of 8 predefined roles. Invited users receive email with activation link redirecting to Clerk sign-up. Upon completing sign-up, users automatically added to tenant organization with assigned role and appear in Settings > Users list." />
+
+      <doc path="docs/sprint-artifacts/2-1-build-user-invitation-system.md" title="Story 2.1" section="Technical Context (Lines 110-148)" snippet="Prerequisites: Story 1.4 (Clerk integration), Story 1.5 (tenant provisioning), Story 1.6 (deployment infrastructure). Key integrations: Clerk Organizations API for invitations, Inngest for email jobs, webhook handler for organization.membership.created events, 8-role system introduced in this story." />
+
+      <doc path="docs/sprint-artifacts/2-1-build-user-invitation-system.md" title="Story 2.1" section="Learnings from Story 1.6 (Lines 229-273)" snippet="Pino logger restored and working in src/lib/logger.ts. Turbopack bundling resolved. Clerk webhook handler pattern established in src/app/api/webhooks/clerk/route.ts - extend for new events. Server Action + React Hook Form + Zod validation proven. RLS enforcement via withTenantContext() working reliably." />
+    </docs>
+
+    <code>
+      <artifact path="src/lib/logger.ts" kind="service" symbol="logger" lines="32-54" reason="Pino logger instance for structured logging. Use logger.info() for user invitations/activations. Automatically redacts sensitive data (passwords, tokens, secrets). JSON format for machine parsing." />
+
+      <artifact path="src/lib/logger.ts" kind="service" symbol="createChildLogger" lines="67-69" reason="Creates child logger with context. Use to add tenantId/userId to all logs in request scope: const requestLogger = logger.child({ tenantId, userId, requestId })" />
+
+      <artifact path="db/tenant-context.ts" kind="service" symbol="withTenantContext" lines="72-119" reason="CRITICAL wrapper for all tenant-scoped queries. Sets PostgreSQL session variable for RLS enforcement. All user table queries MUST use this wrapper to ensure tenant isolation. Example: await withTenantContext(orgId, async () => db.select().from(users))" />
+
+      <artifact path="db/schema/base.ts" kind="schema" symbol="tenantFields" lines="41-45" reason="Reusable mixin for all tenant-scoped tables. Provides: tenantId (UUID), createdAt (timestamp), updatedAt (timestamp). Use in users schema: ...tenantFields" />
+
+      <artifact path="db/schema/tenants.ts" kind="schema" symbol="tenants" lines="72-193" reason="Example of complete RLS pattern. Shows how to: 1) Include tenantFields mixin, 2) Define pgPolicy for tenant_isolation, 3) Use current_setting('app.current_tenant_id') for filtering. Pattern MUST be replicated for users table." />
+
+      <artifact path="src/app/api/webhooks/clerk/route.ts" kind="api" symbol="POST" lines="52-145" reason="Clerk webhook handler with Svix signature verification. Handles user.created, organization.created, organizationMembership.created events. EXTEND this file to handle organization.membership.created for Story 2.1 (update user status from pending to active)." />
+
+      <artifact path="src/app/api/webhooks/clerk/route.ts" kind="api" symbol="handleOrganizationMembershipCreated" lines="272-282" reason="TODO stub for organizationMembership.created webhook. Task 5 will implement: extract userId, orgId, role from webhook, update users table status from 'pending' to 'active', use withTenantContext() for RLS, log activation event." />
+
+      <artifact path="package.json" kind="config" symbol="dependencies" lines="24-43" reason="Key dependencies already installed: @clerk/nextjs 6.35.2 (Organizations API), react-hook-form 7.66.1 (form handling), zod 4.1.12 (validation), pino 10.1.0 (logging), svix 1.81.0 (webhook verification). NOTE: Inngest NOT installed yet - will need to add for email notifications." />
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="@clerk/nextjs" version="6.35.2" reason="Authentication and Organizations API for user invitations" />
+        <package name="react-hook-form" version="7.66.1" reason="Form handling for invite user dialog with validation" />
+        <package name="@hookform/resolvers" version="5.2.2" reason="Zod resolver for React Hook Form validation integration" />
+        <package name="zod" version="4.1.12" reason="Schema validation shared between client and server" />
+        <package name="pino" version="10.1.0" reason="Structured logging for user invitations and activations" />
+        <package name="svix" version="1.81.0" reason="Webhook signature verification for Clerk webhooks" />
+        <package name="drizzle-orm" version="0.44.7" reason="Type-safe database queries with RLS support" />
+        <package name="MISSING: inngest" version="3.45.1" reason="Background jobs for email notifications (NOT installed, needs to be added)" />
+        <package name="MISSING: @radix-ui/*" version="latest" reason="shadcn/ui components (Dialog, Input, Select, Button, Table) - may need installation" />
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    - CRITICAL: Users table MUST have RLS policy for tenant isolation (replicate pattern from tenants.ts)
+    - All user queries MUST use withTenantContext(orgId) wrapper to set session variable
+    - Logger calls must match signature: logger.info({ context }, 'message') with context object first
+    - NEVER log sensitive data: passwords, tokens, API keys, credit cards
+    - Email addresses are OK to log, but passwords/tokens are NOT
+    - Permission checks required before any user management action (only Publisher/Owner can invite)
+    - Webhook signature verification already implemented - don't duplicate in new handlers
+    - DO NOT create user records directly - let Clerk webhook handle user creation
+    - DO NOT send emails synchronously - use Inngest job for reliability and retries
+    - DO NOT skip RLS on users table - security critical for multi-tenant isolation
+    - DO NOT allow non-owners to invite users - check permissions in Server Action
+    - Server Action return pattern: { success: true, data: T } | { success: false, error: string, message: string }
+    - All Server Actions must: 1) auth() check, 2) Zod validation, 3) withTenantContext(), 4) log, 5) revalidatePath(), 6) return structured response
+    - Clerk Organizations API pattern: clerkClient.organizations.createOrganizationInvitation({ organizationId, emailAddress, role })
+    - Inngest NOT installed yet - Task 4 will require: pnpm add inngest + configuration
+  </constraints>
+
+  <interfaces>
+    <interface name="Clerk Organizations API - Create Invitation" kind="REST API" signature="clerkClient.organizations.createOrganizationInvitation({ organizationId: string, emailAddress: string, role: string })" path="@clerk/nextjs SDK" />
+
+    <interface name="Clerk Webhook - organization.membership.created" kind="Webhook" signature="{ type: 'organizationMembership.created', data: { id, organization: { id }, public_user_data: { user_id }, role } }" path="src/app/api/webhooks/clerk/route.ts" />
+
+    <interface name="Server Action Pattern" kind="TypeScript" signature="export async function inviteUser(formData: FormData): Promise<{ success: true, data: User } | { success: false, error: string, message: string }>" path="src/actions/users.ts" />
+
+    <interface name="withTenantContext Wrapper" kind="TypeScript" signature="async function withTenantContext<T>(tenantId: string, callback: (tx) => Promise<T>): Promise<T>" path="db/tenant-context.ts" />
+
+    <interface name="Pino Logger" kind="TypeScript" signature="logger.info({ tenantId, userId, context }, 'message') | logger.error({ error, context }, 'message')" path="src/lib/logger.ts" />
+
+    <interface name="Zod Schema Pattern" kind="TypeScript" signature="export const userInviteSchema = z.object({ email: z.string().email(), role: z.enum(['publisher_owner', ...]) })" path="src/validators/user.ts" />
+  </interfaces>
+
+  <tests>
+    <standards>
+      Integration tests using Vitest with test database (RLS enabled). Pattern established in tests/integration/rls.test.ts and tests/integration/tenant-provisioning.test.ts. Tests must verify: 1) Server Actions create correct records, 2) RLS policies enforce tenant isolation, 3) Webhook handlers update user status, 4) Permission checks throw FORBIDDEN for non-owners, 5) Zod validation rejects invalid inputs.
+    </standards>
+
+    <locations>
+      tests/integration/ - Integration tests with real database
+      tests/unit/ - Unit tests for pure functions (validators, permissions)
+
+      Existing test files to reference:
+      - tests/integration/rls.test.ts - RLS enforcement verification
+      - tests/integration/tenant-provisioning.test.ts - Webhook handler testing
+      - tests/integration/clerk-auth.test.ts - Clerk integration patterns
+    </locations>
+
+    <ideas>
+      - AC1: Test inviteUser() creates pending user record with correct role mapping
+      - AC2: Test inviteUser() sends Inngest email notification event
+      - AC3: Test email notification job sends email within 2 minutes (use mock SMTP)
+      - AC4: Test organizationMembership.created webhook activates pending user
+      - AC5: Test activated user appears in users list with assigned role
+      - AC6: Test users table RLS policy blocks cross-tenant access
+      - AC_PERMISSION: Test non-owner user cannot invoke inviteUser() (throws FORBIDDEN)
+      - AC_VALIDATION: Test invalid email format rejected by Zod schema
+      - AC_VALIDATION: Test invalid role rejected by Zod schema
+      - AC_IDEMPOTENCY: Test duplicate invitation doesn't create multiple pending records
+      - AC_WEBHOOK: Test webhook signature verification prevents spoofed requests
+    </ideas>
+  </tests>
+</story-context>

@@ -1,0 +1,45 @@
+# Fly.io deployment configuration for Salina ERP
+# See https://fly.io/docs/reference/configuration/ for full reference
+
+app = "salina-erp"
+primary_region = "iad" # Washington D.C. - change to your preferred region
+
+# Build configuration
+[build]
+  dockerfile = "Dockerfile"
+
+# Environment variables (set secrets via: fly secrets set KEY=VALUE)
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+
+# HTTP service configuration
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  # Health check configuration
+  [http_service.checks]
+    [http_service.checks.health]
+      type = "http"
+      interval = "30s"
+      timeout = "10s"
+      grace_period = "10s"
+      method = "GET"
+      path = "/api/health"
+      protocol = "http"
+
+# VM resources
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+# Metrics
+[[metrics]]
+  port = 9091
+  path = "/metrics"

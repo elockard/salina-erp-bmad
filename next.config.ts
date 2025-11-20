@@ -3,12 +3,18 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone", // Required for Docker deployment
+  // Mark packages as external to avoid bundling issues with Turbopack
+  // Moved from experimental.serverComponentsExternalPackages (deprecated in Next.js 16)
+  serverExternalPackages: [
+    'pino',
+    'pino-pretty',
+    'pino-abstract-transport',
+    'inngest', // Fix Turbopack module resolution for @/inngest/* imports
+  ],
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",
     },
-    // Mark pino and related packages as external to avoid bundling test files
-    serverComponentsExternalPackages: ['pino', 'pino-pretty', 'pino-abstract-transport'],
   },
 };
 

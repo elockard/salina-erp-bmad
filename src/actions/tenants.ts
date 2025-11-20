@@ -13,7 +13,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { db } from '../../db'
-import { withTenantContext } from '../../db/tenant-context'
+import { withTenantContext, getTenantIdFromClerkOrgId } from '../../db/tenant-context'
 import { tenants, tenantFeatures } from '../../db/schema'
 import { logger } from '@/lib/logger'
 import { brandingSchema, localeSchema } from '@/validators/tenant'
@@ -152,12 +152,23 @@ export async function updateTenantBranding(
       secondaryColor: formData.get('secondaryColor'),
     })
 
-    await withTenantContext(orgId, async (tx) => {
+    // Map Clerk orgId to tenant UUID
+    const tenantId = await getTenantIdFromClerkOrgId(orgId)
+
+    if (!tenantId) {
+      return {
+        success: false,
+        error: 'TENANT_NOT_FOUND',
+        message: 'Tenant not found for organization',
+      }
+    }
+
+    await withTenantContext(tenantId, async (tx) => {
       // Fetch current tenant
       const [tenant] = await tx
         .select()
         .from(tenants)
-        .where(eq(tenants.clerkOrgId, orgId))
+        .where(eq(tenants.id, tenantId))
         .limit(1)
 
       if (!tenant) {
@@ -240,12 +251,23 @@ export async function updateTenantLocale(
       language: formData.get('language'),
     })
 
-    await withTenantContext(orgId, async (tx) => {
+    // Map Clerk orgId to tenant UUID
+    const tenantId = await getTenantIdFromClerkOrgId(orgId)
+
+    if (!tenantId) {
+      return {
+        success: false,
+        error: 'TENANT_NOT_FOUND',
+        message: 'Tenant not found for organization',
+      }
+    }
+
+    await withTenantContext(tenantId, async (tx) => {
       // Fetch current tenant
       const [tenant] = await tx
         .select()
         .from(tenants)
-        .where(eq(tenants.clerkOrgId, orgId))
+        .where(eq(tenants.id, tenantId))
         .limit(1)
 
       if (!tenant) {

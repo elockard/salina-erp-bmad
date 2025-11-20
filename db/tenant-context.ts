@@ -10,7 +10,8 @@
  */
 
 import { db } from './index'
-import { sql } from 'drizzle-orm'
+import { sql, eq } from 'drizzle-orm'
+import { tenants } from './schema'
 
 /**
  * withTenantContext<T> Wrapper Function
@@ -173,5 +174,46 @@ export async function clearTenantContext(): Promise<void> {
     await db.execute(sql`RESET app.current_tenant_id`)
   } catch {
     // Ignore errors if variable doesn't exist
+  }
+}
+
+/**
+ * getTenantIdFromClerkOrgId()
+ *
+ * Maps a Clerk Organization ID to our internal tenant UUID.
+ *
+ * Clerk provides organization IDs in the format `org_XXXXXXXXXXXXXXXXXXXX`,
+ * but our database uses UUIDs for tenant_id. This function performs the lookup.
+ *
+ * @param clerkOrgId - Clerk organization ID (e.g., "org_2o5yucCtMDzF4V1cNgv9DA5o9Sm")
+ * @returns Promise<string | null> - Tenant UUID or null if not found
+ *
+ * @example
+ * ```typescript
+ * const { orgId } = await auth()
+ * const tenantId = await getTenantIdFromClerkOrgId(orgId)
+ * if (!tenantId) throw new Error('Tenant not found')
+ *
+ * await withTenantContext(tenantId, async () => {
+ *   // queries here
+ * })
+ * ```
+ *
+ * @see Story 2.1: Build User Invitation System (added for orgId mapping)
+ */
+export async function getTenantIdFromClerkOrgId(
+  clerkOrgId: string
+): Promise<string | null> {
+  try {
+    const result = await db
+      .select({ id: tenants.id })
+      .from(tenants)
+      .where(eq(tenants.clerkOrgId, clerkOrgId))
+      .limit(1)
+
+    return result[0]?.id || null
+  } catch (error) {
+    console.error('Failed to lookup tenant from Clerk org ID:', error)
+    return null
   }
 }

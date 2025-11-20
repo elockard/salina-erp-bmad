@@ -26,7 +26,7 @@ import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { db } from '../../../../../db'
 import { withTenantContext } from '../../../../../db/tenant-context'
-import { tenants } from '../../../../../db/schema/tenants'
+import { tenants, users } from '../../../../../db/schema'
 import { logger } from '@/lib/logger'
 import { initializeFeatureFlags } from '@/actions/tenants'
 import { eq } from 'drizzle-orm'
@@ -264,21 +264,89 @@ async function handleOrganizationCreated(data: any) {
  * handleOrganizationMembershipCreated()
  *
  * Process organizationMembership.created webhook event.
- * Tracks when users join organizations.
+ * Activates pending users when they accept invitation and complete sign-up.
  *
- * **Implementation:** Story 2.1 (User Invitation System)
- * For now, just log the event.
+ * **Implementation:** Story 2.1 (User Invitation System), Task 5
+ *
+ * **Flow:**
+ * 1. User accepts invitation email and completes Clerk sign-up
+ * 2. Clerk fires organizationMembership.created webhook
+ * 3. This handler updates user status from 'pending' to 'active'
+ * 4. Sets lastLogin timestamp
+ * 5. Logs activation event
  */
 async function handleOrganizationMembershipCreated(data: any) {
-  console.log('organizationMembership.created webhook:', {
-    membershipId: data.id,
-    orgId: data.organization.id,
-    userId: data.public_user_data.user_id,
-    role: data.role,
-  })
+  const orgId = data.organization.id
+  const userId = data.public_user_data.user_id
+  const email = data.public_user_data.identifier
+  const role = data.role
 
-  // TODO (Story 2.1): Create user-tenant association
-  // Track which users belong to which tenants
+  logger.info({
+    orgId,
+    userId,
+    email,
+    role,
+  }, 'organizationMembership.created webhook received')
+
+  try {
+    // Look up tenant ID from Clerk org ID
+    const tenant = await db
+      .select({ id: tenants.id })
+      .from(tenants)
+      .where(eq(tenants.clerkOrgId, orgId))
+      .limit(1)
+
+    if (tenant.length === 0) {
+      logger.error({
+        orgId,
+        userId,
+        email,
+      }, 'Tenant not found for organization in membership webhook')
+      return
+    }
+
+    const tenantId = tenant[0].id
+
+    // Update user status from 'pending' to 'active' using RLS-protected query
+    await withTenantContext(tenantId, async (tx) => {
+      const result = await tx
+        .update(users)
+        .set({
+          clerkUserId: userId,
+          status: 'active',
+          lastLogin: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(users.email, email))
+        .returning()
+
+      if (result.length > 0) {
+        logger.info({
+          tenantId,
+          orgId,
+          userId,
+          email,
+          role,
+          dbUserId: result[0].id,
+        }, 'User activated successfully')
+      } else {
+        logger.warn({
+          tenantId,
+          orgId,
+          userId,
+          email,
+        }, 'No pending user found for email - user may have been created outside invitation flow')
+      }
+    })
+  } catch (error) {
+    logger.error({
+      error,
+      orgId,
+      userId,
+      email,
+    }, 'Failed to activate user')
+    throw error
+  }
 }
 
 /**
